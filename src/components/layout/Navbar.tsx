@@ -5,7 +5,7 @@ import { useSearchStore } from '../../features/search/searchStore';
 import { useAuth } from '../../features/auth/authStore';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { NotificationCenter } from '../notifications/NotificationCenter';
-import protonlabLogo from '../../assets/images/protonlab/logo-protonlab.png';
+import { Link } from 'react-router-dom';
 
 function Navbar() {
   const { term, setTerm } = useSearchStore();
@@ -25,9 +25,10 @@ function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar__brand" role="banner">
-        <div className="navbar__logo" aria-label="Protonlab">
-          <img src={protonlabLogo} alt="Protonlab" className="navbar__logo-image" />
-        </div>
+        <Link to={ROUTES.home} className="navbar__logo" aria-label="Protonlab">
+          <span className="navbar__wordmark">Protonlab</span>
+          <span className="navbar__wordsub">Hardware and robotics</span>
+        </Link>
       </div>
       <nav className="navbar__nav" aria-label="Menú principal">
         <NavLink to={ROUTES.home} className={linkClassName}>

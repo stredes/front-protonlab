@@ -51,8 +51,19 @@
 
 /* Phones: stack in one column and keep controls usable */
 @media (max-width: 760px) {
-  .navbar__logo-image {
-    height: 46px;
+  .navbar__logo {
+    min-width: 0;
+    align-items: center;
+    padding: 0.7rem 0.95rem 0.65rem;
+  }
+
+  .navbar__wordmark {
+    font-size: 1.2rem;
+  }
+
+  .navbar__wordsub {
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
   }
 
   .navbar {
@@ -99,8 +110,12 @@
 
 /* Very small devices */
 @media (max-width: 420px) {
-  .navbar__logo-image {
-    height: 40px;
+  .navbar__wordmark {
+    font-size: 1.02rem;
+  }
+
+  .navbar__wordsub {
+    font-size: 0.54rem;
   }
 
   .navbar__nav a {
