@@ -1,10 +1,10 @@
-import type { BlogPost, BlogCategory } from './types';
+import type { BlogCategory, BlogPost } from './types';
 import protonlabLogo from '../../assets/images/protonlab/logo-protonlab.png';
-import equiposClinicosCover from '../../assets/images/protonlab/ai_hardware_1777123776193.png';
-import hematologiaCover from '../../assets/images/protonlab/quantum_processor_1777123790537.png';
-import orinasCover from '../../assets/images/protonlab/tech_hardware_1777091078472.png';
-import microbiologiaCover from '../../assets/images/protonlab/tech_robot_1777091060991.png';
-import electrolitosCover from '../../assets/images/protonlab/tech_nanotech_1777091090503.png';
+import aiInfrastructureCover from '../../assets/images/protonlab/ai_hardware_1777123776193.png';
+import quantumCover from '../../assets/images/protonlab/quantum_processor_1777123790537.png';
+import hardwareCover from '../../assets/images/protonlab/tech_hardware_1777091078472.png';
+import roboticsCover from '../../assets/images/protonlab/tech_robot_1777091060991.png';
+import nanotechCover from '../../assets/images/protonlab/tech_nanotech_1777091090503.png';
 
 export const blogCategories: BlogCategory[] = [
   {
@@ -40,40 +40,45 @@ export const blogCategories: BlogCategory[] = [
 export const blogPosts: BlogPost[] = [
   {
     id: '1',
-    title: 'Química Clínica Automatizada: cómo mejorar continuidad y trazabilidad',
-    slug: 'quimica-clinica-automatizada-trazabilidad',
+    title: 'Automatización empresarial: cómo reducir fricción operativa sin crecer la estructura',
+    slug: 'automatizacion-empresarial-reducir-friccion-operativa',
     excerpt:
-      'Una visión práctica sobre automatización analítica, continuidad operacional y trazabilidad de resultados en química clínica.',
+      'Una guía práctica para detectar cuellos de botella, automatizar flujos repetitivos y sostener crecimiento con menos fricción.',
     content: `
-# Química Clínica Automatizada: cómo mejorar continuidad y trazabilidad
+# Automatización empresarial: cómo reducir fricción operativa sin crecer la estructura
 
-Los laboratorios clínicos necesitan combinar velocidad analítica, estabilidad operativa y trazabilidad en cada corrida. La automatización en química clínica permite reducir variabilidad manual, mejorar el flujo de muestras y sostener tiempos de respuesta más consistentes.
+Muchas empresas crecen en ventas más rápido que en coordinación interna. Ese desbalance se traduce en tareas manuales, seguimiento por planillas, errores de traspaso y decisiones lentas.
 
-## Estandarización del proceso analítico
+## Dónde conviene automatizar primero
 
-Cuando un laboratorio estandariza preparación, carga y validación, disminuye la probabilidad de retrabajos y de errores en etapas críticas.
+La prioridad no está en automatizar todo, sino en intervenir los puntos donde más tiempo se pierde o más errores se repiten:
 
-## Continuidad operativa
+- aprobación de solicitudes
+- seguimiento comercial
+- generación de reportes
+- sincronización entre sistemas
 
-La continuidad no depende solo del equipo. También requiere soporte técnico oportuno, disponibilidad de reactivos y un flujo ordenado entre preanalítica, análisis y liberación de resultados.
+## Qué cambia cuando se hace bien
 
-## Indicadores que vale la pena seguir
+Una automatización bien diseñada reduce trabajo administrativo, mejora la trazabilidad y libera capacidad del equipo para tareas de mayor valor.
 
-- Tiempo de respuesta por sección
-- Repeticiones por muestra
-- Consumo de reactivos por volumen real
-- Incidencias técnicas por equipo
+## Indicadores útiles
 
-La decisión correcta no es solo incorporar tecnología, sino hacerlo con acompañamiento técnico y criterios de operación diaria.
+- tiempo de ciclo por proceso
+- cantidad de pasos manuales
+- retrabajos por error humano
+- tiempos de respuesta entre áreas
+
+El objetivo no es solo eficiencia. También es crear una operación más estable, escalable y menos dependiente de coordinación informal.
     `,
-    coverImage: equiposClinicosCover,
+    coverImage: aiInfrastructureCover,
     author: {
       name: 'Equipo Protonlab',
       avatar: protonlabLogo,
-      role: 'Especialistas en Infraestructura Tecnológica',
+      role: 'Especialistas en Automatización e Integración',
     },
-    category: 'quimica-clinica',
-    tags: ['Química Clínica', 'Automatización', 'Trazabilidad'],
+    category: 'automatizacion',
+    tags: ['Automatización', 'Operaciones', 'Eficiencia'],
     publishedAt: '2026-03-12',
     readingTime: 5,
     views: 1250,
@@ -81,40 +86,41 @@ La decisión correcta no es solo incorporar tecnología, sino hacerlo con acompa
   },
   {
     id: '2',
-    title: 'Hematología de Alto Rendimiento: claves para laboratorios con alta demanda',
-    slug: 'hematologia-alto-rendimiento-laboratorios',
+    title: 'Infraestructura de IA: criterios reales para invertir en hardware de alto desempeño',
+    slug: 'infraestructura-ia-criterios-para-invertir-en-hardware',
     excerpt:
-      'Factores técnicos y operativos para sostener productividad, control de calidad y continuidad en hematología.',
+      'Cómo evaluar capacidad de cómputo, escalabilidad, energía y continuidad antes de desplegar infraestructura para IA.',
     content: `
-# Hematología de Alto Rendimiento: claves para laboratorios con alta demanda
+# Infraestructura de IA: criterios reales para invertir en hardware de alto desempeño
 
-En hematología, la combinación entre volumen de muestras, estabilidad del equipo y control de calidad diario define buena parte del rendimiento del laboratorio.
+La conversación sobre IA suele centrarse en modelos, pero el cuello de botella operativo muchas veces está en la infraestructura. Sin una base técnica correcta, el costo total de operar se dispara.
 
-## Productividad sin perder confiabilidad
+## Qué evaluar antes de comprar
 
-No basta con procesar más muestras. También es necesario mantener consistencia en resultados, alarmas interpretables y protocolos claros de verificación.
+No basta con mirar GPUs o especificaciones de marketing. Conviene revisar:
 
-## Soporte técnico y mantenimiento
+- consumo energético
+- capacidad de expansión
+- refrigeración
+- ancho de banda interno
+- facilidad de soporte y reposición
 
-La disponibilidad del equipo depende de mantenimiento preventivo, soporte técnico oportuno y capacitación continua del personal.
+## El error más común
 
-## Qué revisar en la práctica
+Comprar para el caso de uso actual y no para la demanda proyectada. Eso obliga a rediseñar arquitectura demasiado pronto y eleva costos de integración.
 
-- Tiempos de respuesta por turno
-- Frecuencia de detenciones
-- Controles internos fuera de rango
-- Disponibilidad de consumibles críticos
+## Enfoque recomendado
 
-Una estrategia robusta en hematología permite sostener productividad incluso en escenarios de alta carga operativa.
+Diseñar una base modular, con crecimiento gradual, observabilidad y soporte técnico claro. Una buena infraestructura no solo corre cargas pesadas: permite crecer sin rehacer la operación.
     `,
-    coverImage: hematologiaCover,
+    coverImage: quantumCover,
     author: {
       name: 'Equipo Protonlab',
       avatar: protonlabLogo,
-      role: 'Arquitectura y Operación Técnica',
+      role: 'Arquitectura e Infraestructura Tecnológica',
     },
-    category: 'hematologia',
-    tags: ['Hematología', 'Continuidad', 'Control de Calidad'],
+    category: 'infraestructura-ia',
+    tags: ['IA', 'Infraestructura', 'Hardware'],
     publishedAt: '2026-03-08',
     readingTime: 6,
     views: 980,
@@ -122,40 +128,39 @@ Una estrategia robusta en hematología permite sostener productividad incluso en
   },
   {
     id: '3',
-    title: 'Uroanálisis y Orinas: eficiencia diagnóstica con flujos bien definidos',
-    slug: 'uroanalisis-orinas-eficiencia-diagnostica',
+    title: 'Continuidad operativa: por qué el soporte técnico define el crecimiento de una empresa',
+    slug: 'continuidad-operativa-soporte-tecnico-y-crecimiento',
     excerpt:
-      'Cómo mejorar la eficiencia del procesamiento de muestras de orina con equipos confiables y una operación más ordenada.',
+      'La continuidad no depende solo del equipo instalado. Depende de soporte, mantenimiento y capacidad de respuesta ante incidentes.',
     content: `
-# Uroanálisis y Orinas: eficiencia diagnóstica con flujos bien definidos
+# Continuidad operativa: por qué el soporte técnico define el crecimiento de una empresa
 
-Las áreas de orinas requieren rapidez, estandarización y una gestión simple del flujo de muestras. La eficiencia mejora cuando el laboratorio alinea tecnología, consumibles y criterios operativos claros.
+Muchas compañías invierten bien en tecnología y subestiman lo que ocurre después del despliegue. Cuando la operación depende de plataformas críticas, el soporte deja de ser un extra y pasa a ser parte de la estrategia.
 
-## Flujo de muestras
+## Qué afecta realmente la continuidad
 
-Desde recepción hasta lectura y validación, cada etapa debe reducir esperas innecesarias y evitar retrabajos.
+- tiempos de respuesta
+- disponibilidad de repuestos
+- monitoreo preventivo
+- documentación técnica
+- capacidad de escalar soporte
 
-## Consistencia operativa
+## Riesgo invisible
 
-La estandarización ayuda a mantener resultados comparables entre turnos, operadores y cargas variables.
+Una operación aparentemente estable puede estar sostenida por conocimiento informal o intervención manual. Ese tipo de dependencia se vuelve un problema serio cuando el negocio crece.
 
-## Buenas prácticas recomendadas
+## Qué conviene construir
 
-- Protocolos claros de ingreso y rechazo
-- Tiempos máximos por etapa
-- Control visual de carga de trabajo
-- Soporte técnico preventivo
-
-Un flujo bien diseñado impacta directamente en productividad y en percepción de calidad por parte del cliente clínico.
+Un modelo de continuidad con mantenimiento, protocolos claros y soporte escalable. Eso reduce interrupciones, mejora previsibilidad y protege la experiencia del cliente final.
     `,
-    coverImage: orinasCover,
+    coverImage: hardwareCover,
     author: {
       name: 'Equipo Protonlab',
       avatar: protonlabLogo,
       role: 'Consultoría Operativa',
     },
-    category: 'operacion-laboratorio',
-    tags: ['Orinas', 'Uroanálisis', 'Productividad'],
+    category: 'operacion-empresarial',
+    tags: ['Continuidad', 'Soporte', 'Escalabilidad'],
     publishedAt: '2026-03-04',
     readingTime: 5,
     views: 760,
@@ -163,36 +168,38 @@ Un flujo bien diseñado impacta directamente en productividad y en percepción d
   },
   {
     id: '4',
-    title: 'Microbiología y Hemocultivos: velocidad de respuesta con respaldo técnico',
-    slug: 'microbiologia-hemocultivos-respaldo-tecnico',
+    title: 'Robótica aplicada: dónde genera valor real y dónde solo agrega complejidad',
+    slug: 'robotica-aplicada-valor-real-vs-complejidad',
     excerpt:
-      'La respuesta oportuna en microbiología depende tanto de la tecnología como del soporte y la continuidad de la operación.',
+      'Una mirada práctica sobre cuándo conviene integrar robótica en procesos empresariales y cómo evitar despliegues que no escalan.',
     content: `
-# Microbiología y Hemocultivos: velocidad de respuesta con respaldo técnico
+# Robótica aplicada: dónde genera valor real y dónde solo agrega complejidad
 
-La microbiología exige procesos estables, trazables y bien acompañados. En áreas de hemocultivos, cada detención o desviación impacta de forma directa en tiempos diagnósticos.
+La robótica puede acelerar operaciones, mejorar precisión y reducir intervención manual. Pero también puede introducir complejidad innecesaria si se implementa sin una lógica clara de negocio.
 
-## Tecnología y continuidad
+## Casos donde sí funciona
 
-Los equipos y consumibles deben responder al ritmo del laboratorio, pero también estar respaldados por un modelo de servicio claro.
+- tareas repetitivas
+- ambientes con baja tolerancia al error
+- procesos que requieren trazabilidad
+- operaciones con alta variabilidad de demanda
 
-## Riesgos comunes
+## Casos donde no conviene empezar
 
-- Quiebres de stock
-- Retrasos en soporte técnico
-- Falta de visibilidad del estado de las corridas
-- Escasa estandarización de criterios operativos
+Si el proceso base todavía es desordenado, la robótica solo automatiza el caos. Primero hay que estandarizar, medir y definir reglas operativas.
 
-Una operación microbiológica madura requiere visibilidad, soporte local y control continuo del proceso.
+## Enfoque maduro
+
+Partir con una célula bien acotada, medir impacto y escalar sobre evidencia. La robótica entrega valor cuando se integra a la operación completa y no como una pieza aislada.
     `,
-    coverImage: microbiologiaCover,
+    coverImage: roboticsCover,
     author: {
       name: 'Equipo Protonlab',
       avatar: protonlabLogo,
-      role: 'Especialistas en Automatización',
+      role: 'Especialistas en Robótica y Automatización',
     },
-    category: 'microbiologia',
-    tags: ['Microbiología', 'Hemocultivos', 'Continuidad'],
+    category: 'robotica',
+    tags: ['Robótica', 'Procesos', 'Integración'],
     publishedAt: '2026-02-26',
     readingTime: 7,
     views: 1120,
@@ -200,36 +207,39 @@ Una operación microbiológica madura requiere visibilidad, soporte local y cont
   },
   {
     id: '5',
-    title: 'Electrolitos en Áreas Críticas: disponibilidad, rapidez y soporte',
-    slug: 'electrolitos-areas-criticas-soporte',
+    title: 'Tecnología para empresas en crecimiento: cómo escalar sin rehacer toda la operación',
+    slug: 'tecnologia-para-empresas-en-crecimiento-escalar-sin-rehacer',
     excerpt:
-      'Las soluciones de electrolitos deben responder con rapidez y estabilidad en entornos donde cada minuto operativo importa.',
+      'Qué decisiones tecnológicas ayudan a escalar con orden, sin multiplicar costos ocultos ni depender de soluciones parche.',
     content: `
-# Electrolitos en Áreas Críticas: disponibilidad, rapidez y soporte
+# Tecnología para empresas en crecimiento: cómo escalar sin rehacer toda la operación
 
-En unidades de urgencia, toma de muestras y laboratorios de alto recambio, los sistemas de electrolitos deben ofrecer velocidad, estabilidad y soporte oportuno.
+Escalar no significa solo vender más. Significa sostener más volumen, más clientes y más exigencia sin que cada nuevo paso rompa la operación anterior.
 
-## Lo que define una operación robusta
+## Qué define una base escalable
 
-No solo importa la velocidad analítica. También cuentan la facilidad de uso, la disponibilidad de reactivos y la capacidad de soporte ante contingencias.
+- sistemas que conversan entre sí
+- arquitectura modular
+- observabilidad
+- soporte técnico confiable
+- capacidad de expansión controlada
 
-## Enfoque recomendado
+## Señales de alerta
 
-- Monitorear tiempos de respuesta reales
-- Mantener inventario crítico bajo control
-- Definir protocolos de contingencia
-- Coordinar servicio técnico preventivo
+Cuando una empresa depende de procesos manuales, múltiples herramientas desconectadas o proveedores sin continuidad, el crecimiento empieza a generar fricción.
 
-La tecnología adecuada mejora la continuidad clínica cuando está acompañada por una operación bien diseñada.
+## Qué priorizar
+
+No hace falta desplegar todo de una vez. Conviene construir una ruta tecnológica clara, con prioridades de negocio, impacto medible y una base que soporte el siguiente nivel de crecimiento.
     `,
-    coverImage: electrolitosCover,
+    coverImage: nanotechCover,
     author: {
       name: 'Equipo Protonlab',
       avatar: protonlabLogo,
-      role: 'Especialistas de Soporte Técnico',
+      role: 'Especialistas de Soporte e Infraestructura',
     },
-    category: 'operacion-laboratorio',
-    tags: ['Electrolitos', 'Urgencia', 'Soporte Técnico'],
+    category: 'operacion-empresarial',
+    tags: ['Empresas', 'Escalabilidad', 'Tecnología'],
     publishedAt: '2026-02-20',
     readingTime: 6,
     views: 1080,
