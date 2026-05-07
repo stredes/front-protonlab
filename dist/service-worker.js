@@ -177,7 +177,7 @@ async function syncPendingQuotes() {
 // Push Notifications - for order updates
 self.addEventListener('push', (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'AMILAB Notificación';
+  const title = data.title || 'Protonlab Notificación';
   const options = {
     body: data.body || 'Tienes una nueva notificación',
     icon: data.icon || '/icon-192x192.png',

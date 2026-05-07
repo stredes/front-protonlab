@@ -1,11 +1,11 @@
 {
-  "name": "AMIWEB - Equipamiento Industrial",
-  "short_name": "AMIWEB",
-  "description": "Plataforma de comercio electrónico para equipamiento y automatización industrial",
+  "name": "Protonlab - Hardware Avanzado y Robótica",
+  "short_name": "Protonlab",
+  "description": "Plataforma de comercio electrónico para hardware avanzado, robótica e infraestructura tecnológica",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F5DC",
-  "theme_color": "#8B1538",
+  "background_color": "#eff6fb",
+  "theme_color": "#0b1f33",
   "orientation": "portrait-primary",
   "icons": [
     {
