@@ -1,0 +1,625 @@
+.about-page {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  color: var(--color-text-primary);
+}
+
+/* Hero Section */
+.about-hero {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  padding: 6rem 2rem;
+  text-align: center;
+  margin-bottom: 4rem;
+  border-radius: 24px;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+.about-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 1rem;
+  letter-spacing: 2px;
+}
+
+.about-subtitle {
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.about-hero-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Achievements Section */
+.about-achievements {
+  padding: 3rem 2rem;
+  background: var(--color-light);
+  margin-bottom: 4rem;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.achievement-card {
+  text-align: center;
+  padding: 2rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.achievement-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.achievement-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.achievement-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.achievement-label {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+/* Mission, Vision, Values */
+.about-mvv {
+  max-width: none;
+  margin: 0 2rem 4rem;
+  padding: 0;
+}
+
+.mvv-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.mvv-tab {
+  padding: 1rem 2rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.mvv-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.mvv-tab.active {
+  color: var(--color-primary);
+}
+
+.mvv-tab.active::after {
+  transform: scaleX(1);
+}
+
+.mvv-tab:hover {
+  color: var(--color-primary);
+}
+
+.mvv-content {
+  padding: 2rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mvv-panel h3 {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.mvv-panel p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+}
+
+.values-list {
+  list-style: none;
+  padding: 0;
+}
+
+.values-list li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.values-list li:last-child {
+  border-bottom: none;
+}
+
+.values-list strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Services Section */
+.about-services {
+  max-width: none;
+  margin: 0 2rem 4rem;
+  padding: 0;
+}
+
+.about-services h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: var(--color-heading);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.service-card {
+  padding: 2rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.service-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.service-card h3 {
+  font-size: 1.4rem;
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+}
+
+.service-card p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+/* Team Section */
+.about-team {
+  max-width: none;
+  margin: 0 2rem 4rem;
+  padding: 3rem 2rem;
+  background: var(--color-light);
+  border-radius: 16px;
+}
+
+.about-team h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: var(--color-heading);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.team-card {
+  padding: 2rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.team-card:hover {
+  transform: scale(1.05);
+}
+
+.team-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.team-card h3 {
+  font-size: 1.3rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.team-role {
+  font-size: 1rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.team-description {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Brands Section */
+.about-brands {
+  max-width: none;
+  margin: 0 2rem 4rem;
+  padding: 0;
+}
+
+.about-brands h2 {
+  text-align: left;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-heading);
+}
+
+.brands-intro {
+  text-align: left;
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 3rem;
+}
+
+.brands-carousel {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.brands-carousel__arrow {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-primary);
+  background: var(--color-bg-primary);
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.brands-carousel__arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.brand-card {
+  padding: 2rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid var(--color-primary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.brand-card:hover {
+  transform: translateX(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.brand-card h3 {
+  font-size: 1.4rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.brand-category {
+  font-size: 0.95rem;
+  color: var(--color-secondary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.brand-description {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Advantages Section */
+.about-advantages {
+  max-width: none;
+  margin: 0 2rem 4rem;
+  padding: 0;
+}
+
+.about-advantages h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 3rem;
+  color: var(--color-heading);
+}
+
+.advantages-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.advantage-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.advantage-item:hover {
+  transform: translateX(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.advantage-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.advantage-content h3 {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+.advantage-content p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* CTA Section */
+.about-cta {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: 4rem 0 0;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cta-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.cta-content p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  opacity: 0.95;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.cta-buttons .btn-primary {
+  background: white;
+  color: var(--color-primary);
+}
+
+.cta-buttons .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.cta-buttons .btn-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.cta-buttons .btn-secondary:hover {
+  background: white;
+  color: var(--color-primary);
+  transform: translateY(-3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 2.5rem;
+  }
+
+  .about-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .about-hero {
+    padding: 4rem 1.5rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .achievement-card {
+    padding: 1.5rem;
+  }
+
+  .achievement-number {
+    font-size: 2rem;
+  }
+
+  .mvv-tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mvv-tab {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mvv-tab::after {
+    display: none;
+  }
+
+  .mvv-tab.active {
+    background: var(--color-light);
+  }
+
+  .services-grid,
+  .team-grid,
+  .brands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-carousel {
+    grid-template-columns: 1fr;
+  }
+
+  .brands-carousel__arrow {
+    justify-self: center;
+  }
+
+  .advantages-list {
+    grid-template-columns: 1fr;
+  }
+
+  .about-services h2,
+  .about-team h2,
+  .about-brands h2,
+  .about-advantages h2,
+  .cta-content h2 {
+    font-size: 2rem;
+  }
+
+  .advantage-item {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .advantage-icon {
+    margin: 0 auto;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .cta-buttons .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-title {
+    font-size: 2rem;
+  }
+
+  .about-subtitle {
+    font-size: 1rem;
+  }
+
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievement-number {
+    font-size: 1.8rem;
+  }
+
+  .service-icon,
+  .team-icon {
+    font-size: 2.5rem;
+  }
+
+  .about-hero,
+  .about-achievements,
+  .about-services,
+  .about-team,
+  .about-brands,
+  .about-advantages,
+  .about-cta {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
