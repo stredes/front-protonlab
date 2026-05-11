@@ -16,7 +16,7 @@ const CrimePreventionModelPage = lazy(() => import('../pages/accesos/CrimePreven
 const LoginPage = lazy(() => import('../pages/auth/LoginPage').then(m => ({ default: m.LoginPage })));
 const PartnerPortalPage = lazy(() => import('../pages/portal/PartnerPortalPage').then(m => ({ default: m.PartnerPortalPage })));
 const OrderDetailPage = lazy(() => import('../pages/portal/OrderDetailPage').then(m => ({ default: m.OrderDetailPage })));
-const AdminDashboardPage = lazy(() => import('../pages/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const AdminDashboardPage = lazy(() => import('../views/AdminDashboard'));
 const RootDashboardPage = lazy(() => import('../pages/root/RootDashboardPage').then(m => ({ default: m.RootDashboardPage })));
 const VendorDashboardPage = lazy(() => import('../pages/vendor/VendorDashboardPage').then(m => ({ default: m.VendorDashboardPage })));
 const WarehouseDashboardPage = lazy(() => import('../pages/warehouse/WarehouseDashboardPage'));

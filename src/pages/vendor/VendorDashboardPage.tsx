@@ -170,16 +170,16 @@ export function VendorDashboardPage() {
     <div className="vendor-dashboard">
       <FadeIn direction="up">
         <div className="vendor-header">
-        <div className="vendor-header__info">
-          <h1>Panel de Vendedor</h1>
-          <p className="muted">
-            Bienvenido, {user.name} 
-            <span className="vendor-badge">💼 VENDEDOR</span>
-          </p>
-        </div>
-        <button onClick={logout} className="btn btn-secondary">
-          Cerrar Sesión
-        </button>
+          <div className="vendor-header__info">
+            <h1>Panel de Vendedor</h1>
+            <p className="muted">
+              Bienvenido, {user.name}
+              <span className="vendor-badge">💼 VENDEDOR</span>
+            </p>
+          </div>
+          <button onClick={logout} className="btn btn-secondary">
+            Cerrar Sesión
+          </button>
         </div>
       </FadeIn>
 

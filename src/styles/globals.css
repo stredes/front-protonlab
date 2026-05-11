@@ -1,29 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Paleta Protonlab: azul profundo, cian eléctrico y superficies limpias */
-  --color-primary: #0b1f33;
-  --color-primary-light: #12314d;
-  --color-primary-dark: #071625;
-  --color-secondary: #00c2ff;
-  --color-accent: #36e4ff;
-  --color-white: #ffffff;
-  --color-light: #f3f8fc;
-  --color-light-gray: #dbe7f2;
-  --color-footer: #06111d;
-  --color-text: #102133;
-  --color-text-light: #466179;
-  --color-text-primary: #102133;
-  --color-text-secondary: #466179;
-  --color-muted: #678198;
-  --color-error: #DC2626;
-  --color-success: #16A34A;
-  --color-warning: #D97706;
-  --color-info: #0284c7;
-  --color-heading: #071625;
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #eff6fb;
-  --color-border: #d7e4f0;
+  /* Paleta NGRP-ERP: Azul Tecnológico, Gris Oscuro y Verde Lima */
+  --color-primary: #007BFF;        /* Azul Tecnológico */
+  --color-primary-light: #0056b3;  /* Azul más oscuro para hover */
+  --color-primary-dark: #004085;   /* Azul aún más oscuro */
+  --color-secondary: #343A40;      /* Gris Oscuro */
+  --color-accent: #28A745;         /* Verde Lima */
+  --color-white: #FFFFFF;          /* Blanco Puro */
+  --color-light: #F8F9FA;          /* Fondo Suave */
+  --color-light-gray: #E9ECEF;     /* Gris muy claro */
+  --color-footer: #212529;         /* Gris oscuro para footer */
+  --color-text: #343A40;           /* Gris Oscuro para texto principal */
+  --color-text-light: #6C757D;     /* Gris Medio para texto secundario */
+  --color-text-primary: #343A40;   /* Alias para texto principal */
+  --color-text-secondary: #6C757D; /* Alias para texto secundario */
+  --color-muted: #6C757D;          /* Alias para muted */
+  --color-error: #DC3545;          /* Rojo para errores */
+  --color-success: #28A745;        /* Verde Lima para éxito */
+  --color-warning: #FFC107;        /* Amarillo para advertencias */
+  --color-info: #17A2B8;           /* Cyan para información */
+  --color-heading: #212529;        /* Gris muy oscuro para headings */
+  --color-bg-primary: #FFFFFF;     /* Blanco Puro para fondos principales */
+  --color-bg-secondary: #F8F9FA;   /* Fondo Suave para secciones */
+  --color-border: #DEE2E6;         /* Gris claro para bordes */
   
   /* Espaciado */
   --spacing-xs: 0.25rem;
@@ -1030,6 +1030,17 @@ textarea {
 .login-header h1 {
   margin-bottom: var(--spacing-sm);
   color: var(--color-primary);
+}
+
+.login-note {
+  margin: 0.5rem 0 0;
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.login-note strong {
+  color: var(--color-primary-dark);
 }
 
 .login-form {

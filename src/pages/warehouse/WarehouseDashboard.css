@@ -1,0 +1,253 @@
+/* Warehouse Dashboard Styles - NGRP-ERP */
+
+.warehouse-dashboard {
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+  padding: 1.5rem 0.25rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 1920px) {
+  .warehouse-dashboard {
+    padding: 1.5rem 0.5rem;
+    max-width: 1920px;
+  }
+}
+
+/* Header */
+.warehouse-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+  border-top: 4px solid var(--color-primary);
+}
+
+.warehouse-header__info h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-primary);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.warehouse-header__info p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text-light);
+}
+
+.warehouse-badge {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: white;
+  padding: 0.375rem 0.875rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.warehouse-header button {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* Stats Grid */
+.warehouse-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.warehouse-stat-card {
+  background: var(--color-white);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border-left: 4px solid var(--color-primary);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.warehouse-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.warehouse-stat-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.warehouse-stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0;
+}
+
+.warehouse-stat-card .stat-label {
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Tabs */
+.warehouse-tabs {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.warehouse-tabs__header {
+  display: flex;
+  background: var(--color-light);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.warehouse-tabs__header button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-light);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.warehouse-tabs__header button:hover {
+  background: var(--color-light-gray);
+  color: var(--color-text);
+}
+
+.warehouse-tabs__header button.active {
+  background: var(--color-white);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.warehouse-tabs__header button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-primary);
+}
+
+.warehouse-tabs__content {
+  padding: 2rem;
+}
+
+.warehouse-tabs__content h3 {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Inventory Table */
+.inventory-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.inventory-table th,
+.inventory-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inventory-table th {
+  background: var(--color-light);
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.inventory-table td {
+  color: var(--color-text);
+}
+
+.inventory-table tr:hover {
+  background: var(--color-light);
+}
+
+.inventory-table .status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.inventory-table .status-badge.available {
+  background: var(--color-success);
+  color: white;
+}
+
+.inventory-table .status-badge.low {
+  background: var(--color-warning);
+  color: #212529;
+}
+
+.inventory-table .status-badge.out {
+  background: var(--color-error);
+  color: white;
+}
+
+/* Actions */
+.warehouse-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.warehouse-actions button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.warehouse-actions .btn-primary {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+}
+
+.warehouse-actions .btn-primary:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.warehouse-actions .btn-secondary {
+  background: var(--color-light);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.warehouse-actions .btn-secondary:hover {
+  background: var(--color-light-gray);
+  border-color: var(--color-text-light);
+}

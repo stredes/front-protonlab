@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import React, { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../features/auth/authStore';
 import { authApi } from '../../features/auth/authApi';
@@ -82,6 +82,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const isMockActive = ENABLE_LOGIN_MOCK;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -89,7 +90,7 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      if (ENABLE_LOGIN_MOCK) {
+      if (isMockActive) {
         const foundMock = MOCK_USERS.find(
           (mockUser) =>
             mockUser.email.toLowerCase() === email.trim().toLowerCase() &&
@@ -102,6 +103,9 @@ export function LoginPage() {
           navigateByRole(user.role, navigate);
           return;
         }
+
+        setError('No se encontró un perfil demo con esos datos. Usa uno de los perfiles de prueba abajo.');
+        return;
       }
 
       // 1. Autenticar con Firebase Auth
@@ -140,6 +144,12 @@ export function LoginPage() {
           <div className="login-header">
             <h1>Portal de Socios</h1>
             <p className="muted">Accede a tu cuenta de Protonlab</p>
+            {isMockActive && (
+              <p className="login-note">
+                No tienes perfil definido todavía? Usa uno de los accesos de prueba para ingresar como
+                <strong> root</strong>, <strong>admin</strong>, <strong>vendedor</strong>, <strong>bodega</strong> o <strong>socio</strong>.
+              </p>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">

@@ -17,7 +17,7 @@ import { TourOverlay } from './components/tour/TourOverlay';
 import { TourTrigger } from './components/tour/TourTrigger';
 import { OfflineIndicator } from './components/ui/OfflineIndicator';
 import { useEffect } from 'react';
-import { registerServiceWorker } from './lib/serviceWorker';
+import { registerServiceWorker, unregisterServiceWorker } from './lib/serviceWorker';
 import { checkBackendConnection, logApiRuntimeDiagnostics } from './lib/httpClient';
 import { ErrorBoundary } from './components/debug/ErrorBoundary';
 import { usePageTracking } from './hooks/useLogger';
@@ -30,7 +30,13 @@ function App() {
   useEffect(() => {
     logger.info('App initialized');
     logApiRuntimeDiagnostics();
-    registerServiceWorker();
+
+    if (!import.meta.env.DEV) {
+      registerServiceWorker();
+    } else {
+      unregisterServiceWorker();
+    }
+
     checkBackendConnection();
   }, []);
   

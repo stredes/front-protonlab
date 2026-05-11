@@ -10,6 +10,7 @@ import { toast } from '../../components/ui/Toast';
 import { checkBackendConnection } from '../../lib/httpClient';
 import { API_BASE_URL } from '../../config/env';
 import '../../pages/admin/AdminDashboard.css';
+import './RootDashboard.css';
 
 type ManagedUser = Omit<User, 'password'>;
 type RootSection = 'overview' | 'users' | 'diagnostics' | 'security';

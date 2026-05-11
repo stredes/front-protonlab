@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 // Plugin para logs en terminal
 function terminalLogsPlugin() {
@@ -83,6 +84,15 @@ function terminalLogsPlugin() {
 
 export default defineConfig({
   plugins: [react(), terminalLogsPlugin()],
+  resolve: {
+    alias: {
+      react: resolve(__dirname, 'node_modules/react'),
+      'react-dom': resolve(__dirname, 'node_modules/react-dom'),
+      'react-router': resolve(__dirname, 'node_modules/react-router'),
+      'react-router-dom': resolve(__dirname, 'node_modules/react-router-dom')
+    },
+    dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom']
+  },
   test: {
     environment: 'jsdom'
   }

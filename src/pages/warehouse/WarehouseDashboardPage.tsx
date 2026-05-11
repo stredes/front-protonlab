@@ -6,7 +6,7 @@ import Loader from '../../components/ui/Loader';
 import { OrderPreparation, ShippingManagement, WarehouseStock } from '../../components/warehouse';
 import { Navigate } from 'react-router-dom';
 import { ROUTES } from '../../config/routes';
-import './WarehouseDashboardPage.css';
+import './WarehouseDashboard.css';
 
 export function WarehouseDashboardPage() {
   const { user, logout } = useAuth();
@@ -84,11 +84,11 @@ export function WarehouseDashboardPage() {
   );
 
   return (
-    <div className="warehouse-dashboard" style={{ backgroundColor: '#F5F5DC', minHeight: '100vh', padding: '2rem' }}>
+    <div className="warehouse-dashboard">
       <div className="warehouse-dashboard__header">
         <div className="warehouse-dashboard__welcome">
-          <h1 style={{ color: '#2D1619', fontSize: '2rem' }}>Dashboard de Bodega</h1>
-          <p style={{ color: '#5A3940', fontSize: '1.1rem' }}>Bienvenido, {user?.name || 'Usuario'}</p>
+          <h1>Dashboard de Bodega</h1>
+          <p>Bienvenido, {user?.name || 'Usuario'}</p>
         </div>
         <button onClick={logout} className="btn btn-secondary">
           Cerrar Sesión
