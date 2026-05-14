@@ -1,17 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildAdminAssistantRequest,
-  createPendingAssistantResponse,
   getAdminAssistantSuggestions,
   normalizeAdminAssistantResponse,
 } from '../features/adminAssistant/adminAssistantContract';
 
 describe('adminAssistantContract', () => {
-  it('builds a normalized assistant request payload', () => {
-    const payload = buildAdminAssistantRequest('  Ventas del mes por vendedor  ', 'session-1');
+  it('builds a backend-ready SQL assistant request payload', () => {
+    const payload = buildAdminAssistantRequest('  Ventas del mes por vendedor  ');
 
-    expect(payload.message).toBe('Ventas del mes por vendedor');
-    expect(payload.sessionId).toBe('session-1');
+    expect(payload.question).toBe('Ventas del mes por vendedor');
+    expect(payload.dialect).toBe('PostgreSQL');
+    expect(payload.schema).toContain('customers');
+    expect(payload.businessContext).toContain('Proton Lab');
   });
 
   it('provides curated suggestions for the admin assistant', () => {
@@ -22,25 +23,17 @@ describe('adminAssistantContract', () => {
     expect(suggestions.every((suggestion) => suggestion.prompt.trim().length > 0)).toBe(true);
   });
 
-  it('creates a backend pending response for the UI placeholder state', () => {
-    const response = createPendingAssistantResponse('Clientes sin compra en 60 días');
-
-    expect(response.table.rows[0].valor_esperado).toContain('Clientes sin compra en 60 días');
-    expect(response.meta.status).toBe('backend_pending');
-    expect(response.answer).toContain('backend');
-  });
-
-  it('normalizes backend responses when table data is missing', () => {
+  it('normalizes backend SQL assistant responses', () => {
     const response = normalizeAdminAssistantResponse({
-      answer: 'Sin tabla',
-      meta: {
-        requestId: 'req-1',
-      },
+      sql: 'SELECT id, status FROM orders LIMIT 10;',
+      explanation: 'Devuelve pedidos recientes.',
+      assumptions: ['La tabla orders existe.'],
+      model: 'qwen2.5-coder:3b',
     });
 
-    expect(response.answer).toBe('Sin tabla');
-    expect(response.table.columns).toEqual([]);
-    expect(response.table.rows).toEqual([]);
-    expect(response.meta.requestId).toBe('req-1');
+    expect(response.sql).toContain('SELECT id, status FROM orders');
+    expect(response.explanation).toBe('Devuelve pedidos recientes.');
+    expect(response.assumptions).toEqual(['La tabla orders existe.']);
+    expect(response.model).toBe('qwen2.5-coder:3b');
   });
 });

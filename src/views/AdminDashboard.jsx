@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Navigate } from 'react-router-dom';
 import { 
   Users, 
   BarChart3, 
@@ -20,6 +21,9 @@ import {
   Database,
   Cpu
 } from 'lucide-react';
+import { useAuth } from '../features/auth/authStore';
+import { AdminAssistantPanel } from '../components/admin/AdminAssistantPanel';
+import '../pages/admin/AdminDashboard.css';
 
 // Estilos de imagen para mantener la estética tecnológica
 const IMAGES = {
@@ -62,13 +66,21 @@ const NavigationCard = ({ label, icon: Icon, image, onClick }) => (
 );
 
 const App = () => {
+  const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
-  
-  const user = { name: 'Admin Root', role: 'root' };
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.role !== 'admin' && user.role !== 'root') {
+    return <Navigate to="/portal-socios" replace />;
+  }
 
   const navConfig = [
     { id: 'overview', label: 'Panel de Control', icon: LayoutDashboard, image: IMAGES.equipment },
+    { id: 'assistant', label: 'Asistente IA', icon: Cpu, image: IMAGES.quantum },
     { id: 'users', label: 'Usuarios', icon: Users, image: IMAGES.robot },
     { id: 'orders', label: 'Pedidos B2B', icon: ShoppingBag, image: IMAGES.equipment },
     { id: 'inventory', label: 'Bodega e Insumos', icon: Warehouse, image: IMAGES.quantum },
@@ -135,7 +147,10 @@ const App = () => {
             ))}
           </nav>
 
-          <button className={`flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center'} py-4 text-sm font-black text-red-500 hover:bg-red-50 rounded-2xl transition-all`}>
+          <button
+            onClick={() => void logout()}
+            className={`flex items-center ${isSidebarOpen ? 'gap-4 px-4' : 'justify-center'} py-4 text-sm font-black text-red-500 hover:bg-red-50 rounded-2xl transition-all`}
+          >
             <LogOut size={22} />
             {isSidebarOpen && <span>DESCONECTAR</span>}
           </button>
@@ -228,6 +243,10 @@ const App = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          ) : activeTab === 'assistant' ? (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <AdminAssistantPanel userName={user.name} userRole={user.role} />
             </div>
           ) : (
             <div className="bg-white rounded-[3rem] p-12 border border-slate-200 shadow-2xl min-h-[500px] flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300">

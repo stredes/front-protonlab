@@ -9,33 +9,32 @@ export interface AdminAssistantSuggestion {
 }
 
 export interface AdminAssistantChatRequest {
-  message: string;
-  sessionId?: string;
-}
-
-export interface AdminAssistantTable {
-  columns: string[];
-  rows: Array<Record<string, string | number | null>>;
+  question: string;
+  schema: string;
+  dialect: string;
+  businessContext: string;
 }
 
 export interface AdminAssistantChatResponse {
-  answer: string;
-  table: AdminAssistantTable;
+  sql: string;
+  explanation: string;
+  assumptions: string[];
+  model: string;
   meta: {
     requestId?: string;
-    sessionId?: string;
     status?: 'backend_pending' | 'connected';
   };
 }
 
-export interface AdminAssistantMessage {
-  id: string;
-  role: 'assistant' | 'user';
-  content: string;
-  timestamp: string;
-}
+export const ADMIN_ASSISTANT_ENDPOINT = '/api/ai/sql-assistant';
 
-export const ADMIN_ASSISTANT_ENDPOINT = '/api/admin/assistant/query';
+const ADMIN_ASSISTANT_SCHEMA = [
+  'customers(id, name, email, company, status, assigned_sales_rep, created_at)',
+  'quotes(id, customer_id, status, total_amount, created_at)',
+  'orders(id, customer_id, quote_id, status, total_amount, created_at)',
+  'products(id, sku, name, category_id, price, stock, is_active)',
+  'inventory_movements(id, product_id, movement_type, quantity, created_at)',
+].join('\n');
 
 const ADMIN_ASSISTANT_SUGGESTIONS: AdminAssistantSuggestion[] = [
   {
@@ -88,13 +87,18 @@ export function getAdminAssistantSuggestions(): AdminAssistantSuggestion[] {
 
 export function buildAdminAssistantRequest(
   message: string,
-  sessionId?: string
+  userRole: AdminAssistantUserRole = 'admin'
 ): AdminAssistantChatRequest {
-  const normalizedMessage = message.trim();
+  const normalizedQuestion = message.trim();
 
   return {
-    message: normalizedMessage,
-    ...(sessionId ? { sessionId } : {}),
+    question: normalizedQuestion,
+    schema: ADMIN_ASSISTANT_SCHEMA,
+    dialect: 'PostgreSQL',
+    businessContext:
+      userRole === 'root'
+        ? 'ERP interno de Proton Lab con visión global para root/admin sobre clientes, cotizaciones, pedidos, inventario y operación.'
+        : 'ERP interno de Proton Lab para administración comercial y operativa de clientes, cotizaciones, pedidos e inventario.',
   };
 }
 
@@ -102,31 +106,29 @@ export function normalizeAdminAssistantResponse(
   response: Partial<AdminAssistantChatResponse>
 ): AdminAssistantChatResponse {
   return {
-    answer: response.answer || 'Sin respuesta del asistente.',
-    table: {
-      columns: response.table?.columns || [],
-      rows: response.table?.rows || [],
-    },
+    sql: response.sql || '-- Sin SQL generado',
+    explanation: response.explanation || 'Sin explicación del asistente.',
+    assumptions: response.assumptions || [],
+    model: response.model || 'modelo-no-reportado',
     meta: {
       requestId: response.meta?.requestId,
-      sessionId: response.meta?.sessionId,
       status: response.meta?.status || 'connected',
     },
   };
 }
 
-export function createPendingAssistantResponse(question: string): AdminAssistantChatResponse {
+export function createPendingAssistantResponse(
+  question: string
+): AdminAssistantChatResponse {
   return {
-    answer:
-      'La interfaz ya esta lista, pero el backend del asistente aun no esta conectado. Esta consulta quedara disponible cuando exista el endpoint productivo.',
-    table: {
-      columns: ['campo', 'valor_esperado'],
-      rows: [
-        { campo: 'consulta', valor_esperado: question.trim() },
-        { campo: 'endpoint', valor_esperado: ADMIN_ASSISTANT_ENDPOINT },
-        { campo: 'estado', valor_esperado: 'Esperando integracion backend' },
-      ],
-    },
+    sql: '-- El backend aún no respondió a esta consulta.',
+    explanation:
+      'La interfaz está preparada, pero todavía no hay una respuesta confirmada del backend para la consulta actual.',
+    assumptions: [
+      `Consulta solicitada: ${question.trim()}`,
+      `Endpoint esperado: ${ADMIN_ASSISTANT_ENDPOINT}`,
+    ],
+    model: 'backend_pending',
     meta: {
       requestId: 'pending-backend',
       status: 'backend_pending',

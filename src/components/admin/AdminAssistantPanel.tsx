@@ -47,27 +47,16 @@ function createUserMessage(content: string): AdminAssistantMessage {
   };
 }
 
-function exportAssistantTable(response: AdminAssistantChatResponse) {
-  if (!response.table.rows.length || !response.table.columns.length) {
+function exportAssistantSql(response: AdminAssistantChatResponse) {
+  if (!response.sql.trim()) {
     return;
   }
 
-  const rows = [
-    response.table.columns,
-    ...response.table.rows.map((row) =>
-      response.table.columns.map((column) => String(row[column] ?? ''))
-    ),
-  ];
-
-  const csv = rows
-    .map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(','))
-    .join('\n');
-
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const blob = new Blob([response.sql], { type: 'text/sql;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  anchor.download = `admin-assistant-${new Date().toISOString().slice(0, 10)}.csv`;
+  anchor.download = `admin-assistant-${new Date().toISOString().slice(0, 10)}.sql`;
   document.body.appendChild(anchor);
   anchor.click();
   document.body.removeChild(anchor);
@@ -76,16 +65,17 @@ function exportAssistantTable(response: AdminAssistantChatResponse) {
 
 export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelProps) {
   const [draft, setDraft] = useState('');
-  const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorState, setErrorState] = useState<AssistantErrorState>(null);
   const initialQuestion = 'Ventas del mes por vendedor';
   const [messages, setMessages] = useState<AdminAssistantMessage[]>([
     createAssistantMessage(
-      `Hola ${userName}. Puedes preguntar por pedidos, clientes, cotizaciones, cartera o KPIs. El acceso esta restringido a perfil ${userRole}.`
+      `Hola ${userName}. Puedes preguntar por pedidos, clientes, cotizaciones o inventario. Este panel genera SQL de solo lectura para el rol ${userRole}.`
     ),
   ]);
-  const [lastRequest, setLastRequest] = useState(() => buildAdminAssistantRequest(initialQuestion));
+  const [lastRequest, setLastRequest] = useState(() =>
+    buildAdminAssistantRequest(initialQuestion, userRole)
+  );
   const [lastResponsePreview, setLastResponsePreview] = useState<AdminAssistantChatResponse>(() =>
     createPendingAssistantResponse(initialQuestion)
   );
@@ -97,7 +87,7 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion || isSubmitting) return;
 
-    const request = buildAdminAssistantRequest(normalizedQuestion, sessionId);
+    const request = buildAdminAssistantRequest(normalizedQuestion, userRole);
     setMessages((currentMessages) => [...currentMessages, createUserMessage(normalizedQuestion)]);
     setLastRequest(request);
     setErrorState(null);
@@ -106,17 +96,15 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
     try {
       const response = await queryAdminAssistant(request);
       setLastResponsePreview(response);
-      if (response.meta.sessionId) {
-        setSessionId(response.meta.sessionId);
-      }
       setMessages((currentMessages) => [
         ...currentMessages,
-        createAssistantMessage(response.answer),
+        createAssistantMessage(response.explanation),
       ]);
       setDraft('');
     } catch (error) {
       const apiError = error instanceof ApiRequestError ? error : null;
-      const fallbackMessage = error instanceof Error ? error.message : 'No se pudo consultar el asistente.';
+      const fallbackMessage =
+        error instanceof Error ? error.message : 'No se pudo consultar el asistente.';
 
       setErrorState({
         message: fallbackMessage,
@@ -149,13 +137,14 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
           <span className="admin-assistant-panel__eyebrow">Asistente Admin</span>
           <h2>Consultas guiadas con IA</h2>
           <p className="muted">
-            Conectado a backend read-only para consultas administrativas. El admin consulta en
-            lenguaje natural y recibe resumen, tabla y trazabilidad por `requestId`.
+            Conectado a <code>/api/ai/sql-assistant</code>. El panel consulta en
+            lenguaje natural y devuelve SQL de solo lectura, explicación y
+            supuestos operativos.
           </p>
         </div>
         <div className={`admin-assistant-panel__status ${isSubmitting ? 'is-busy' : ''}`}>
           <span className="admin-assistant-panel__status-dot" />
-          {isSubmitting ? 'Consultando backend' : 'Conectado a API admin'}
+          {isSubmitting ? 'Generando SQL' : 'Conectado a API admin'}
         </div>
       </div>
 
@@ -195,7 +184,7 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
                   <strong>Asistente</strong>
                   <span>Procesando</span>
                 </div>
-                <p>Consultando backend y preparando respuesta...</p>
+                <p>Consultando backend y generando SQL read-only...</p>
               </article>
             )}
           </div>
@@ -247,15 +236,19 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
             <h3>Capacidades previstas</h3>
             <ul>
               <li>Ventas por periodo, vendedor o cliente.</li>
-              <li>Pedidos por estado, aprobacion o atraso.</li>
+              <li>Pedidos por estado, aprobación o atraso.</li>
               <li>Cartera comercial y clientes inactivos.</li>
-              <li>Inventario, rotacion y alertas operativas.</li>
+              <li>Inventario, rotación y alertas operativas.</li>
             </ul>
           </article>
 
           <article className="admin-assistant-card">
             <h3>Payload enviado al backend</h3>
-            <p>Contrato activo: `POST /api/admin/assistant/query` con `message` y `sessionId` opcional.</p>
+            <p>
+              Contrato activo: <code>POST /api/ai/sql-assistant</code> con
+              <code> question</code>, <code>schema</code>, <code>dialect</code> y
+              <code> businessContext</code>.
+            </p>
             <pre>{JSON.stringify(lastRequest, null, 2)}</pre>
           </article>
 
@@ -265,50 +258,36 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
               <button
                 type="button"
                 className="btn btn--secondary btn--small"
-                onClick={() => exportAssistantTable(lastResponsePreview)}
-                disabled={!lastResponsePreview.table.rows.length}
+                onClick={() => exportAssistantSql(lastResponsePreview)}
+                disabled={!lastResponsePreview.sql.trim()}
               >
-                Exportar CSV
+                Exportar SQL
               </button>
             </div>
-            <p>{lastResponsePreview.answer}</p>
+            <p>{lastResponsePreview.explanation}</p>
             <div className="admin-assistant-meta-list">
               <span>requestId: {lastResponsePreview.meta.requestId || 'N/A'}</span>
-              <span>sessionId: {lastResponsePreview.meta.sessionId || sessionId || 'N/A'}</span>
+              <span>modelo: {lastResponsePreview.model}</span>
             </div>
-            {lastResponsePreview.table.columns.length > 0 ? (
-              <div className="admin-assistant-table">
-                <div
-                  className="admin-assistant-table__head"
-                  style={{
-                    gridTemplateColumns: `repeat(${lastResponsePreview.table.columns.length}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {lastResponsePreview.table.columns.map((column) => (
-                    <span key={column}>{column}</span>
-                  ))}
-                </div>
-                {lastResponsePreview.table.rows.length > 0 ? (
-                  lastResponsePreview.table.rows.map((row, index) => (
-                    <div
-                      key={`row-${index}`}
-                      className="admin-assistant-table__row"
-                      style={{
-                        gridTemplateColumns: `repeat(${lastResponsePreview.table.columns.length}, minmax(0, 1fr))`,
-                      }}
-                    >
-                      {lastResponsePreview.table.columns.map((column) => (
-                        <span key={column}>{String(row[column] ?? '-')}</span>
-                      ))}
-                    </div>
-                  ))
-                ) : (
-                  <div className="admin-assistant-table__empty">La consulta no devolvio filas.</div>
-                )}
+            <pre>{lastResponsePreview.sql}</pre>
+            <div className="admin-assistant-table">
+              <div className="admin-assistant-table__head" style={{ gridTemplateColumns: '1fr' }}>
+                <span>Supuestos del modelo</span>
               </div>
-            ) : (
-              <div className="admin-assistant-table__empty">La respuesta no incluye tabla.</div>
-            )}
+              {lastResponsePreview.assumptions.length > 0 ? (
+                lastResponsePreview.assumptions.map((assumption, index) => (
+                  <div
+                    key={`assumption-${index}`}
+                    className="admin-assistant-table__row"
+                    style={{ gridTemplateColumns: '1fr' }}
+                  >
+                    <span>{assumption}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="admin-assistant-table__empty">Sin supuestos declarados.</div>
+              )}
+            </div>
           </article>
         </aside>
       </div>
