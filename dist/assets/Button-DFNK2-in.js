@@ -1,1 +1,0 @@
-import{j as i}from"./index-BJ28HhMn.js";function u({children:t,variant:s="primary",fullWidth:n=!1,className:r="",...o}){const a=n?"btn-full-width":"";return i.jsx("button",{className:`btn btn-${s} ${a} ${r}`.trim(),...o,children:t})}export{u as B};
