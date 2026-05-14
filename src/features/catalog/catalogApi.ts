@@ -1,6 +1,20 @@
 import { httpRequest } from '../../lib/httpClient';
 import { Product, ProductCategory, ProductFilters } from './types';
 
+function normalizeFrontendProductHref(href: string | undefined, slug: string, id: string): string {
+  const fallbackHref = `/productos/${slug || id}`;
+
+  if (!href) {
+    return fallbackHref;
+  }
+
+  if (href.startsWith('/products/')) {
+    return href.replace('/products/', '/productos/');
+  }
+
+  return href;
+}
+
 function toProduct(data: Record<string, unknown>): Product {
   const id = String(data.id || '');
   const categoryId = String(data.categoryId || data.familia || '');
@@ -32,7 +46,7 @@ function toProduct(data: Record<string, unknown>): Product {
     code: (data.code as string) || (data.codigo as string) || undefined,
     familia: (data.family as string) || (data.familia as string) || undefined,
     subfamilia: (data.subfamily as string) || (data.subfamilia as string) || undefined,
-    href: (data.href as string) || `/productos/${slug}`,
+    href: normalizeFrontendProductHref(data.href as string | undefined, slug, id),
     precio:
       typeof data.price === 'number'
         ? data.price
