@@ -8,6 +8,7 @@ import { FadeIn } from '../../components/ui/FadeIn';
 import { UserManagement } from '../../components/admin/UserManagement';
 import { toast } from '../../components/ui/Toast';
 import { checkBackendConnection } from '../../lib/httpClient';
+import { auth } from '../../lib/firebase';
 import { API_BASE_URL } from '../../config/env';
 import '../../pages/admin/AdminDashboard.css';
 import './RootDashboard.css';
@@ -102,6 +103,33 @@ export function RootDashboardPage() {
       toast.success('Backend operativo');
     } else {
       toast.error('Backend no disponible en este momento');
+    }
+  };
+
+  const handleDownloadAudit = async () => {
+    try {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+      const response = await fetch(`${API_BASE_URL}/api/audit/export`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const downloadUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = downloadUrl;
+      anchor.download = `protonlab-auditoria-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(downloadUrl);
+      toast.success('Auditoría descargada');
+    } catch (error) {
+      console.error('Error downloading audit report:', error);
+      toast.error('No se pudo descargar la auditoría');
     }
   };
 
@@ -287,7 +315,7 @@ export function RootDashboardPage() {
                     </article>
                     <article className="root-tool-card">
                       <h3>Auditoría</h3>
-                      <p>Revisa historial por usuario desde el módulo CRUD (icono reloj).</p>
+                      <p>Revisa historial por usuario o descarga el reporte operativo completo.</p>
                     </article>
                     <article className="root-tool-card">
                       <h3>Cuenta actual</h3>
@@ -301,6 +329,9 @@ export function RootDashboardPage() {
                   <div className="root-tools-actions">
                     <button className="btn btn--secondary" onClick={() => setActiveSection('users')}>
                       Ir a gestión de usuarios
+                    </button>
+                    <button className="btn btn--secondary" onClick={handleDownloadAudit}>
+                      Descargar auditoría
                     </button>
                     <button className="btn btn--primary" onClick={logout}>
                       Cerrar sesión segura

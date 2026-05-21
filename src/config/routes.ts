@@ -8,6 +8,7 @@ export const ROUTES = {
   crimePrevention: '/accesos/modelo-prevencion-delitos',
   login: '/login',
   partnerPortal: '/portal-socios',
+  account: '/mi-cuenta',
   adminDashboard: '/admin',
   rootDashboard: '/root',
   vendorDashboard: '/vendedor',

@@ -20,7 +20,10 @@ export const API_VERSION = ((import.meta.env.VITE_API_VERSION as string | undefi
 export const ENABLE_API_DIAGNOSTICS =
   (import.meta.env.VITE_ENABLE_API_DIAGNOSTICS as string | undefined) === 'true';
 
+const rawLoginMock = import.meta.env.VITE_ENABLE_LOGIN_MOCK as string | undefined;
 export const ENABLE_LOGIN_MOCK =
-  (import.meta.env.VITE_ENABLE_LOGIN_MOCK as string | undefined) === 'true' ||
-  !import.meta.env.VITE_FIREBASE_PROJECT_ID ||
-  import.meta.env.DEV;
+  rawLoginMock === 'true'
+    ? true
+    : rawLoginMock === 'false'
+      ? false
+      : !import.meta.env.VITE_FIREBASE_PROJECT_ID || import.meta.env.DEV;

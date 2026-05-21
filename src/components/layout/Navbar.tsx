@@ -68,8 +68,8 @@ function Navbar() {
                 📦 Bodega
               </NavLink>
             ) : (
-              <NavLink to={ROUTES.partnerPortal} className={linkClassName}>
-                🔐 Portal
+              <NavLink to={ROUTES.account} className={linkClassName}>
+                Mi Cuenta
               </NavLink>
             )}
           </>

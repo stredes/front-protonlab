@@ -59,6 +59,14 @@ function AppRouter() {
               </ProtectedRoute>
             } 
           />
+          <Route
+            path={ROUTES.account}
+            element={
+              <ProtectedRoute>
+                <PartnerPortalPage />
+              </ProtectedRoute>
+            }
+          />
           <Route 
             path="/portal/orders/:orderId" 
             element={

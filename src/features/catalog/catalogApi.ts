@@ -1,6 +1,12 @@
 import { httpRequest } from '../../lib/httpClient';
 import { Product, ProductCategory, ProductFilters } from './types';
 
+const catalogAssetUrls = import.meta.glob('/src/assets/images/**/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
 function normalizeFrontendProductHref(href: string | undefined, slug: string, id: string): string {
   const fallbackHref = `/productos/${slug || id}`;
 
@@ -15,15 +21,34 @@ function normalizeFrontendProductHref(href: string | undefined, slug: string, id
   return href;
 }
 
+function resolveCatalogAssetUrl(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+
+  if (!trimmed.startsWith('/src/assets/images/')) {
+    return trimmed;
+  }
+
+  const resolved = catalogAssetUrls[trimmed];
+  if (resolved && resolved !== trimmed) {
+    return resolved;
+  }
+
+  return `${trimmed}?url`;
+}
+
 function toProduct(data: Record<string, unknown>): Product {
   const id = String(data.id || '');
   const categoryId = String(data.categoryId || data.familia || '');
   const slug = String(data.slug || id);
-  const image =
-    (data.image as string) ||
-    (data.imageUrl as string) ||
-    (data.imagen as string) ||
-    '';
+  const image = resolveCatalogAssetUrl(data.image || data.imageUrl || data.imagen) || '';
+  const hoverImage = resolveCatalogAssetUrl(data.hoverImage);
   const longDescription = String(
     data.technicalDescription || data.longDescription || data.descripcion || ''
   );
@@ -42,7 +67,7 @@ function toProduct(data: Record<string, unknown>): Product {
     requiresMaintenance: Boolean(data.requiresMaintenance || false),
     image,
     imageUrl: image || undefined,
-    hoverImage: (data.hoverImage as string) || undefined,
+    hoverImage,
     code: (data.code as string) || (data.codigo as string) || undefined,
     familia: (data.family as string) || (data.familia as string) || undefined,
     subfamilia: (data.subfamily as string) || (data.subfamilia as string) || undefined,
@@ -65,7 +90,7 @@ export async function getCategories(): Promise<ProductCategory[]> {
     name: String(category.name || ''),
     slug: String(category.slug || ''),
     description: String(category.description || category.name || ''),
-    image: (category.image as string) || undefined,
+    image: resolveCatalogAssetUrl(category.image),
     href: (category.href as string) || undefined,
   }));
 }

@@ -121,30 +121,30 @@ class QuoteService {
    * Obtiene cotizaciones pendientes para el vendedor
    */
   async getVendorPendingQuotes(): Promise<Quote[]> {
-    const response = await httpRequest<Quote[]>('/api/quotes/vendor/pending');
-    return response;
+    const response = await httpRequest<Quote[] | { items?: Quote[] }>('/api/quotes/vendor/pending');
+    return Array.isArray(response) ? response : response.items || [];
   }
 
   /**
    * Aprobar/rechazar cotización como vendedor
    */
   async vendorApproveQuote(quoteId: string, approved: boolean, notes?: string): Promise<Quote> {
-    const response = await httpRequest<Quote>(`/api/quotes/${quoteId}/vendor-approve`, {
+    const response = await httpRequest<Quote | { quote: Quote }>(`/api/quotes/${quoteId}/vendor-approve`, {
       method: 'POST',
       body: { approved, notes }
     });
-    return response;
+    return 'quote' in response ? response.quote : response;
   }
 
   /**
    * Aprobar/rechazar cotización como admin
    */
   async adminApproveQuote(quoteId: string, approved: boolean, notes?: string): Promise<Quote> {
-    const response = await httpRequest<Quote>(`/api/quotes/${quoteId}/admin-approve`, {
+    const response = await httpRequest<Quote | { quote: Quote }>(`/api/quotes/${quoteId}/admin-approve`, {
       method: 'POST',
       body: { approved, notes }
     });
-    return response;
+    return 'quote' in response ? response.quote : response;
   }
 
   /**
