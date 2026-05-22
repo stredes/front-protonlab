@@ -47,4 +47,23 @@ describe('catalogApi', () => {
     expect(products[0].image).not.toBe('/src/assets/images/protonlab/ai_hardware_1777123776193.png');
     expect(products[0].imageUrl).toBe(products[0].image);
   });
+
+  it('preserves backend blob image URLs for product cards', async () => {
+    const blobUrl = 'https://dzkjreaxn5ennfih.public.blob.vercel-storage.com/products/microscope.jpg';
+    httpRequestMock.mockResolvedValueOnce([
+      {
+        id: 'prod-microscope',
+        slug: 'microscope',
+        name: 'Microscopio digital',
+        categoryId: 'cat-equipos',
+        image: blobUrl,
+      },
+    ]);
+
+    const { getProducts } = await import('../features/catalog/catalogApi');
+    const products = await getProducts();
+
+    expect(products[0].image).toBe(blobUrl);
+    expect(products[0].imageUrl).toBe(blobUrl);
+  });
 });

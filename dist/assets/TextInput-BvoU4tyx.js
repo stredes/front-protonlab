@@ -1,0 +1,1 @@
+import{j as r}from"./index-BVtJvYvI.js";function m({label:e,id:s,error:t,className:n="",...o}){return r.jsxs("div",{className:`form-control ${n}`.trim(),children:[r.jsx("label",{htmlFor:s,children:e}),r.jsx("input",{id:s,...o}),t&&r.jsx("p",{className:"form-error",children:t})]})}export{m as T};

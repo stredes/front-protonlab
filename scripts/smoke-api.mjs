@@ -60,6 +60,7 @@ loadEnvFile(path.join(cwd, '.env.local'));
 
 const baseUrl = normalizeBaseUrl(
   process.env.API_BASE_URL ||
+    process.env.VITE_PROTONLAB_API_BASE_URL ||
     process.env.VITE_API_URL ||
     process.env.VITE_API_BASE_URL ||
     'http://localhost:3000'
@@ -74,7 +75,7 @@ const frontendOrigin = normalizeBaseUrl(
 );
 
 if (!baseUrl) {
-  console.error('API base URL no definida. Usa API_BASE_URL o VITE_API_URL.');
+  console.error('API base URL no definida. Usa API_BASE_URL, VITE_PROTONLAB_API_BASE_URL o VITE_API_URL.');
   process.exit(1);
 }
 

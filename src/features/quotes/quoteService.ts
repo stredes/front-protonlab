@@ -1,5 +1,6 @@
 import { OrderProduct, ShippingAddress } from '../auth/types';
 import { httpRequest } from '../../lib/httpClient';
+import { ApiRequestError } from '../../lib/apiContract';
 
 export interface CreateQuoteData {
   customerName: string;
@@ -167,28 +168,47 @@ class QuoteService {
    */
   async getNotifications(unreadOnly: boolean = false): Promise<QuoteNotification[]> {
     const url = unreadOnly ? '/api/notifications?unreadOnly=true' : '/api/notifications';
-    const response = await httpRequest<QuoteNotification[]>(url);
-    return response;
+    try {
+      const response = await httpRequest<QuoteNotification[]>(url);
+      return response;
+    } catch (error) {
+      if (error instanceof ApiRequestError && error.status === 404) {
+        return [];
+      }
+      throw error;
+    }
   }
 
   /**
    * Marcar todas las notificaciones como leídas
    */
   async markAllNotificationsAsRead(): Promise<void> {
-    await httpRequest('/api/notifications', {
-      method: 'PATCH',
-      body: { markAllAsRead: true }
-    });
+    try {
+      await httpRequest('/api/notifications', {
+        method: 'PATCH',
+        body: { markAllAsRead: true }
+      });
+    } catch (error) {
+      if (!(error instanceof ApiRequestError && error.status === 404)) {
+        throw error;
+      }
+    }
   }
 
   /**
    * Marcar una notificación como leída
    */
   async markNotificationAsRead(notificationId: string): Promise<void> {
-    await httpRequest(`/api/notifications/${notificationId}`, {
-      method: 'PATCH',
-      body: { read: true }
-    });
+    try {
+      await httpRequest(`/api/notifications/${notificationId}`, {
+        method: 'PATCH',
+        body: { read: true }
+      });
+    } catch (error) {
+      if (!(error instanceof ApiRequestError && error.status === 404)) {
+        throw error;
+      }
+    }
   }
 }
 

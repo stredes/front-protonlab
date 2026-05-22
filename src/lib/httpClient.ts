@@ -80,6 +80,7 @@ export function logApiRuntimeDiagnostics() {
     mode: import.meta.env.MODE,
     viteApiUrl: import.meta.env.VITE_API_URL,
     viteApiBaseUrl: import.meta.env.VITE_API_BASE_URL,
+    viteProtonlabApiBaseUrl: import.meta.env.VITE_PROTONLAB_API_BASE_URL,
   });
 }
 
@@ -145,7 +146,7 @@ export async function checkBackendConnection(): Promise<boolean> {
         console.log(
           '%cℹ MODO DESARROLLO',
           'color: #3b82f6; font-weight: bold; font-size: 14px; background: #eff6ff; padding: 8px 12px; border-radius: 4px;',
-          '\n  Backend no disponible\n  Verifica VITE_API_URL/VITE_API_BASE_URL y el estado de la API'
+          '\n  Backend no disponible\n  Verifica VITE_PROTONLAB_API_BASE_URL/VITE_API_URL/VITE_API_BASE_URL y el estado de la API'
         );
       } else {
         logger.error('Backend connection failed', {
@@ -175,7 +176,7 @@ export async function httpRequest<T>(
   const url = buildUrl(endpoint);
   if (!url) {
     throw new ApiRequestError({
-      message: 'Backend no configurado. Define VITE_API_URL o VITE_API_BASE_URL.',
+      message: 'Backend no configurado. Define VITE_PROTONLAB_API_BASE_URL, VITE_API_URL o VITE_API_BASE_URL.',
       endpoint,
       url: '',
       code: 'BACKEND_NOT_CONFIGURED',
