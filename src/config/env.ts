@@ -9,7 +9,20 @@ function normalizeBaseUrl(raw?: string): string {
   return unquoted.replace(/\/+$/, '');
 }
 
-export const API_BASE_URL = normalizeBaseUrl(
+export function resolveBackendBaseUrl(raw?: string): string {
+  const normalized = normalizeBaseUrl(raw);
+  const retiredBackendAliases = new Set([
+    'https://protonlab-backend-delta.vercel.app',
+  ]);
+
+  if (retiredBackendAliases.has(normalized)) {
+    return 'https://protonlab-backend-kappa.vercel.app';
+  }
+
+  return normalized;
+}
+
+export const API_BASE_URL = resolveBackendBaseUrl(
   ((import.meta.env.VITE_PROTONLAB_API_BASE_URL as string | undefined) ??
     (import.meta.env.VITE_API_URL as string | undefined) ??
     (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
