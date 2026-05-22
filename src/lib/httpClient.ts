@@ -27,6 +27,9 @@ type HttpClientOptions = {
   headers?: Record<string, string>;
 };
 
+const AUTH_STORAGE_KEY = 'protonlab_auth';
+const MOCK_AUTH_TOKEN = 'mock-token-dev';
+
 // Cache para evitar múltiples chequeos de conexión
 let backendConnectionCache: { status: boolean; timestamp: number } | null = null;
 const CACHE_DURATION = 30000; // 30 segundos
@@ -66,6 +69,30 @@ function isApiEnvelope(value: unknown): value is ApiEnvelope<unknown> {
   }
 
   return 'success' in (value as Record<string, unknown>);
+}
+
+function getStoredAuthToken(): string | null {
+  try {
+    const stored = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!stored) {
+      return null;
+    }
+
+    const parsed = JSON.parse(stored) as { token?: unknown };
+    return typeof parsed.token === 'string' && parsed.token !== MOCK_AUTH_TOKEN
+      ? parsed.token
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveAuthToken(): Promise<string | null> {
+  if (auth.currentUser) {
+    return auth.currentUser.getIdToken();
+  }
+
+  return getStoredAuthToken();
 }
 
 export function logApiRuntimeDiagnostics() {
@@ -190,7 +217,7 @@ export async function httpRequest<T>(
   logApiEvent.request(endpoint, method);
 
   try {
-    const token = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+    const token = await resolveAuthToken();
 
     const resolvedHeaders: Record<string, string> = {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
