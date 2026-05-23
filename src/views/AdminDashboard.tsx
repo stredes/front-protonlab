@@ -32,7 +32,15 @@ const IMAGES = {
     'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=800',
 };
 
-function SidebarItem({ icon: Icon, label, active, onClick, collapsed }) {
+interface SidebarItemProps {
+  icon: any;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  collapsed: boolean;
+}
+
+function SidebarItem({ icon: Icon, label, active, onClick, collapsed }: SidebarItemProps) {
   return (
     <button
       onClick={onClick}
@@ -44,7 +52,14 @@ function SidebarItem({ icon: Icon, label, active, onClick, collapsed }) {
   );
 }
 
-function NavigationCard({ label, icon: Icon, image, onClick }) {
+interface NavigationCardProps {
+  label: string;
+  icon: any;
+  image: string;
+  onClick: () => void;
+}
+
+function NavigationCard({ label, icon: Icon, image, onClick }: NavigationCardProps) {
   return (
     <button onClick={onClick} className="ops-nav-card">
       <img src={image} className="ops-nav-card__image" alt={label} />
@@ -78,6 +93,7 @@ export default function AdminDashboard() {
   const navConfig = [
     { id: 'overview', label: 'Panel de Control', icon: LayoutDashboard, image: IMAGES.equipment },
     { id: 'assistant', label: 'Asistente IA', icon: Cpu, image: IMAGES.quantum },
+    { id: 'products', label: 'Productos B2B', icon: Package, image: IMAGES.robot },
     { id: 'users', label: 'Usuarios', icon: Users, image: IMAGES.robot },
     { id: 'orders', label: 'Pedidos B2B', icon: ShoppingBag, image: IMAGES.equipment },
     { id: 'inventory', label: 'Bodega e Insumos', icon: Warehouse, image: IMAGES.quantum },
@@ -250,16 +266,10 @@ export default function AdminDashboard() {
             <div className="ops-panel-shell">
               <AdminAssistantPanel userName={user.name} userRole={user.role} />
             </div>
-          ) : activeTab === 'orders' ? (
+          ) : activeTab === 'products' ? (
             <div className="ops-panel-shell">
               <div className="admin-section">
                 <ProductManagement />
-              </div>
-            </div>
-          ) : activeTab === 'users' ? (
-            <div className="ops-panel-shell">
-              <div className="admin-section">
-                <UserManagement users={[]} currentUser={user} onUsersChange={() => {}} />
               </div>
             </div>
           ) : (

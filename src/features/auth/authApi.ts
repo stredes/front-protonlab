@@ -1,4 +1,5 @@
-import { auth } from '../../lib/firebase';
+import { auth, db } from '../../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { httpRequest } from '../../lib/httpClient';
 import { backendApi } from '../api/backendApiService';
 import { AuthResponse, LoginCredentials, Order, OrderProduct, ShippingAddress, SupportContact, User, Vendor } from './types';
@@ -259,11 +260,49 @@ function mapQuoteToPseudoOrder(quote: BackendQuote): Order {
 }
 
 async function getCurrentUserFromApi(): Promise<User> {
-  const response = await httpRequest<{ user: User }>('/api/auth/me', { method: 'GET' });
-  return response.user;
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error('No user is currently authenticated in Firebase.');
+  }
+
+  try {
+    const userDocRef = doc(db, 'users', currentUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      // Fallback a un objeto de usuario básico si el perfil no existe en Firestore
+      return {
+        id: currentUser.uid,
+        email: currentUser.email || '',
+        name: currentUser.displayName || 'Usuario sin nombre',
+        role: 'socio', // Rol por defecto
+        company: '',
+        isActive: true,
+      };
+    }
+
+    const data = userDocSnap.data();
+    return {
+      id: currentUser.uid,
+      email: currentUser.email || '',
+      name: data.name || currentUser.displayName || '',
+      role: (data.role as User['role']) || 'socio',
+      company: data.company || '',
+      isActive: data.isActive ?? true,
+      phone: data.phone,
+    };
+  } catch (error) {
+    console.error('Error fetching user profile from Firestore:', error);
+    throw error;
+  }
 }
 
 export const authApi = {
+  async getMe(_token?: string): Promise<{ user: User }> {
+    const user = await getCurrentUserFromApi();
+    return { user };
+  },
+
   async login(_credentials: LoginCredentials): Promise<AuthResponse> {
     const user = await getCurrentUserFromApi();
     const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
@@ -351,8 +390,26 @@ export const authApi = {
   },
 
   async getAllUsers(): Promise<Array<Omit<User, 'password'>>> {
-    const response = await httpRequest<UserListPayload>('/api/users', { method: 'GET' });
-    return extractUsers(response);
+    try {
+      const { collection, getDocs } = await import('firebase/firestore');
+      const snapshot = await getDocs(collection(db, 'users'));
+      
+      return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          email: data.email || '',
+          name: data.name || 'Usuario',
+          role: (data.role as User['role']) || 'socio',
+          company: data.company || '',
+          isActive: data.isActive ?? true,
+          phone: data.phone,
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching users from Firestore:', error);
+      return [];
+    }
   },
 
   async getVendorClients(vendorId: string): Promise<Array<Omit<User, 'password'>>> {

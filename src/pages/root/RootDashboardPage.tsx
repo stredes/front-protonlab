@@ -6,6 +6,8 @@ import { User } from '../../features/auth/types';
 import Loader from '../../components/ui/Loader';
 import { FadeIn } from '../../components/ui/FadeIn';
 import { UserManagement } from '../../components/admin/UserManagement';
+import { ProductManagement } from '../../components/admin/ProductManagement';
+import { CategoryManagement } from '../../components/admin/CategoryManagement';
 import { toast } from '../../components/ui/Toast';
 import { checkBackendConnection } from '../../lib/httpClient';
 import { auth } from '../../lib/firebase';
@@ -14,7 +16,7 @@ import '../../pages/admin/AdminDashboard.css';
 import './RootDashboard.css';
 
 type ManagedUser = Omit<User, 'password'>;
-type RootSection = 'overview' | 'users' | 'diagnostics' | 'security';
+type RootSection = 'overview' | 'users' | 'products' | 'categories' | 'diagnostics' | 'security';
 
 export function RootDashboardPage() {
   const { user, logout } = useAuth();
@@ -191,6 +193,18 @@ export function RootDashboardPage() {
                 <span className="dashboard-sidebar__counter">{users.length}</span>
               </button>
               <button
+                className={`dashboard-sidebar__item ${activeSection === 'products' ? 'active' : ''}`}
+                onClick={() => setActiveSection('products')}
+              >
+                <span>📦 Productos B2B</span>
+              </button>
+              <button
+                className={`dashboard-sidebar__item ${activeSection === 'categories' ? 'active' : ''}`}
+                onClick={() => setActiveSection('categories')}
+              >
+                <span>🏷️ Categorías</span>
+              </button>
+              <button
                 className={`dashboard-sidebar__item ${activeSection === 'diagnostics' ? 'active' : ''}`}
                 onClick={() => setActiveSection('diagnostics')}
               >
@@ -273,6 +287,16 @@ export function RootDashboardPage() {
                   onUsersChange={loadUsers}
                   createUserTrigger={createUserTrigger}
                 />
+              )}
+              {activeSection === 'products' && (
+                <div className="admin-section">
+                  <ProductManagement />
+                </div>
+              )}
+              {activeSection === 'categories' && (
+                <div className="admin-section">
+                  <CategoryManagement />
+                </div>
               )}
               {activeSection === 'diagnostics' && (
                 <section className="admin-section root-tools-panel">

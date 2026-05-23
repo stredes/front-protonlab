@@ -90,6 +90,32 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
+      // Intentar Login Real con Firebase siempre
+      // Si falla y el Mock está activo, caemos al Mock
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const firebaseToken = await userCredential.user.getIdToken();
+        
+        // Obtenemos el perfil completo desde nuestro backend
+        const profile = await authApi.getMe(firebaseToken);
+        login(profile.user, firebaseToken);
+        navigateByRole(profile.user.role, navigate);
+        return;
+      } catch (firebaseErr: any) {
+        console.warn('Firebase login failed, checking mock mode...', firebaseErr.code);
+        
+        // Si no estamos en modo Mock, lanzamos el error de Firebase
+        if (!isMockActive) {
+          if (firebaseErr.code === 'auth/user-not-found' || firebaseErr.code === 'auth/wrong-password') {
+            setError('Credenciales inválidas en Firebase.');
+          } else {
+            setError('Error de autenticación: ' + firebaseErr.message);
+          }
+          return;
+        }
+      }
+
+      // Si llegamos aquí es porque Firebase falló O estamos en modo Mock forzado
       if (isMockActive) {
         const foundMock = MOCK_USERS.find(
           (mockUser) =>
