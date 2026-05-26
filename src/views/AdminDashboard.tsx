@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import {
   Users,
@@ -18,6 +18,8 @@ import {
   Cpu,
 } from 'lucide-react';
 import { useAuth } from '../features/auth/authStore';
+import { authApi } from '../features/auth/authApi';
+import type { User } from '../features/auth/types';
 import { AdminAssistantPanel } from '../components/admin/AdminAssistantPanel';
 import { ProductManagement } from '../components/admin/ProductManagement';
 import { UserManagement } from '../components/admin/UserManagement';
@@ -81,6 +83,30 @@ export default function AdminDashboard() {
   const { user, logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [users, setUsers] = useState<Array<Omit<User, 'password'>>>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    if (!user || (user.role !== 'admin' && user.role !== 'root')) {
+      return;
+    }
+
+    setIsUsersLoading(true);
+    try {
+      setUsers(await authApi.getAllUsers());
+    } catch (error) {
+      console.error('Error loading admin users:', error);
+      setUsers([]);
+    } finally {
+      setIsUsersLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      void loadUsers();
+    }
+  }, [activeTab, loadUsers]);
 
   if (!user) {
     return null;
@@ -271,6 +297,20 @@ export default function AdminDashboard() {
               <div className="admin-section">
                 <ProductManagement />
               </div>
+            </div>
+          ) : activeTab === 'users' ? (
+            <div className="ops-panel-shell">
+              {isUsersLoading ? (
+                <div className="admin-section">
+                  <p className="muted">Cargando usuarios desde Firebase Auth...</p>
+                </div>
+              ) : (
+                <UserManagement
+                  users={users}
+                  currentUser={user}
+                  onUsersChange={() => void loadUsers()}
+                />
+              )}
             </div>
           ) : (
             <div className="ops-placeholder">

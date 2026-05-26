@@ -390,26 +390,8 @@ export const authApi = {
   },
 
   async getAllUsers(): Promise<Array<Omit<User, 'password'>>> {
-    try {
-      const { collection, getDocs } = await import('firebase/firestore');
-      const snapshot = await getDocs(collection(db, 'users'));
-      
-      return snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          email: data.email || '',
-          name: data.name || 'Usuario',
-          role: (data.role as User['role']) || 'socio',
-          company: data.company || '',
-          isActive: data.isActive ?? true,
-          phone: data.phone,
-        };
-      });
-    } catch (error) {
-      console.error('Error fetching users from Firestore:', error);
-      return [];
-    }
+    const response = await httpRequest<UserListPayload>('/api/users', { method: 'GET' });
+    return extractUsers(response);
   },
 
   async getVendorClients(vendorId: string): Promise<Array<Omit<User, 'password'>>> {
