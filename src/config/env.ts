@@ -28,7 +28,16 @@ export const API_BASE_URL = resolveBackendBaseUrl(
     (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
     'http://localhost:3000')
 );
-export const API_TIMEOUT_MS = 10000;
+function parsePositiveInteger(raw: string | undefined, fallback: number): number {
+  const parsed = raw ? Number.parseInt(raw, 10) : Number.NaN;
+
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+export const API_TIMEOUT_MS = parsePositiveInteger(
+  import.meta.env.VITE_API_TIMEOUT_MS as string | undefined,
+  45000
+);
 export const API_VERSION = ((import.meta.env.VITE_API_VERSION as string | undefined) ?? 'legacy').toLowerCase();
 export const ENABLE_API_DIAGNOSTICS =
   (import.meta.env.VITE_ENABLE_API_DIAGNOSTICS as string | undefined) === 'true';

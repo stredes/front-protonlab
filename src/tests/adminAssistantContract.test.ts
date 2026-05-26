@@ -11,8 +11,8 @@ describe('adminAssistantContract', () => {
 
     expect(payload.question).toBe('Ventas del mes por vendedor');
     expect(payload.dialect).toBe('PostgreSQL');
-    expect(payload.schema).toContain('customers');
-    expect(payload.businessContext).toContain('Proton Lab');
+    expect(payload.schema).toBeUndefined();
+    expect(payload.businessContext).toContain('AI Context Registry');
   });
 
   it('provides curated suggestions for the admin assistant', () => {
@@ -26,14 +26,19 @@ describe('adminAssistantContract', () => {
   it('normalizes backend SQL assistant responses', () => {
     const response = normalizeAdminAssistantResponse({
       sql: 'SELECT id, status FROM orders LIMIT 10;',
+      answer: 'Encontré pedidos recientes.',
       explanation: 'Devuelve pedidos recientes.',
       assumptions: ['La tabla orders existe.'],
+      evidence: ['Pedido ORD-1'],
+      notice: null,
       model: 'qwen2.5-coder:3b',
     });
 
+    expect(response.answer).toBe('Encontré pedidos recientes.');
     expect(response.sql).toContain('SELECT id, status FROM orders');
     expect(response.explanation).toBe('Devuelve pedidos recientes.');
     expect(response.assumptions).toEqual(['La tabla orders existe.']);
+    expect(response.evidence).toEqual(['Pedido ORD-1']);
     expect(response.model).toBe('qwen2.5-coder:3b');
   });
 });

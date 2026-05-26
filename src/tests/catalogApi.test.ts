@@ -1,18 +1,38 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const httpRequestMock = vi.fn();
+const getDocsMock = vi.fn();
 
-vi.mock('../lib/httpClient', () => ({
-  httpRequest: httpRequestMock,
+vi.mock('../lib/firebase', () => ({
+  db: {},
+}));
+
+vi.mock('firebase/firestore', () => ({
+  collection: vi.fn((db, name) => ({ db, name })),
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  getDocs: getDocsMock,
+  limit: vi.fn(),
+  query: vi.fn((...args) => args),
+  where: vi.fn(),
 }));
 
 describe('catalogApi', () => {
   beforeEach(() => {
-    httpRequestMock.mockReset();
+    vi.resetModules();
+    getDocsMock.mockReset();
   });
 
+  function resolveProductsOnce(products: Array<Record<string, unknown>>) {
+    getDocsMock.mockResolvedValueOnce({
+      docs: products.map((product) => ({
+        id: String(product.id),
+        data: () => product,
+      })),
+    });
+  }
+
   it('normalizes backend product href values to frontend product routes', async () => {
-    httpRequestMock.mockResolvedValueOnce([
+    resolveProductsOnce([
       {
         id: 'prod-hardware-ia',
         slug: 'cluster-ia-nexus',
@@ -30,7 +50,7 @@ describe('catalogApi', () => {
   });
 
   it('resolves backend /src asset image paths to bundled frontend asset URLs', async () => {
-    httpRequestMock.mockResolvedValueOnce([
+    resolveProductsOnce([
       {
         id: 'prod-hardware-ia',
         slug: 'cluster-ia-nexus',
@@ -50,7 +70,7 @@ describe('catalogApi', () => {
 
   it('preserves backend blob image URLs for product cards', async () => {
     const blobUrl = 'https://dzkjreaxn5ennfih.public.blob.vercel-storage.com/products/microscope.jpg';
-    httpRequestMock.mockResolvedValueOnce([
+    resolveProductsOnce([
       {
         id: 'prod-microscope',
         slug: 'microscope',

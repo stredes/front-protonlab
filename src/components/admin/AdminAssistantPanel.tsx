@@ -98,7 +98,7 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
       setLastResponsePreview(response);
       setMessages((currentMessages) => [
         ...currentMessages,
-        createAssistantMessage(response.explanation),
+        createAssistantMessage(response.answer),
       ]);
       setDraft('');
     } catch (error) {
@@ -246,7 +246,7 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
             <h3>Payload enviado al backend</h3>
             <p>
               Contrato activo: <code>POST /api/ai/sql-assistant</code> con
-              <code> question</code>, <code>schema</code>, <code>dialect</code> y
+              <code> question</code>, <code>dialect</code> y
               <code> businessContext</code>.
             </p>
             <pre>{JSON.stringify(lastRequest, null, 2)}</pre>
@@ -264,12 +264,31 @@ export function AdminAssistantPanel({ userName, userRole }: AdminAssistantPanelP
                 Exportar SQL
               </button>
             </div>
-            <p>{lastResponsePreview.explanation}</p>
+            <p>{lastResponsePreview.answer}</p>
+            {lastResponsePreview.notice ? (
+              <p className="muted">{lastResponsePreview.notice}</p>
+            ) : null}
             <div className="admin-assistant-meta-list">
               <span>requestId: {lastResponsePreview.meta.requestId || 'N/A'}</span>
               <span>modelo: {lastResponsePreview.model}</span>
             </div>
-            <pre>{lastResponsePreview.sql}</pre>
+            {lastResponsePreview.sql.trim() ? <pre>{lastResponsePreview.sql}</pre> : null}
+            {lastResponsePreview.evidence.length > 0 ? (
+              <div className="admin-assistant-table">
+                <div className="admin-assistant-table__head" style={{ gridTemplateColumns: '1fr' }}>
+                  <span>Evidencia</span>
+                </div>
+                {lastResponsePreview.evidence.map((item, index) => (
+                  <div
+                    key={`evidence-${index}`}
+                    className="admin-assistant-table__row"
+                    style={{ gridTemplateColumns: '1fr' }}
+                  >
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="admin-assistant-table">
               <div className="admin-assistant-table__head" style={{ gridTemplateColumns: '1fr' }}>
                 <span>Supuestos del modelo</span>

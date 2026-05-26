@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveBackendBaseUrl } from '../config/env';
+import { API_TIMEOUT_MS, resolveBackendBaseUrl } from '../config/env';
 
 describe('env config', () => {
   it('redirects retired backend deployments to the stable backend alias', () => {
@@ -12,5 +12,9 @@ describe('env config', () => {
     expect(resolveBackendBaseUrl('https://protonlab-backend-kappa.vercel.app/')).toBe(
       'https://protonlab-backend-kappa.vercel.app'
     );
+  });
+
+  it('uses a timeout long enough for local Ollama responses', () => {
+    expect(API_TIMEOUT_MS).toBeGreaterThanOrEqual(30000);
   });
 });

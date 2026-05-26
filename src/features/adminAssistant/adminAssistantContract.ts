@@ -10,15 +10,18 @@ export interface AdminAssistantSuggestion {
 
 export interface AdminAssistantChatRequest {
   question: string;
-  schema: string;
-  dialect: string;
-  businessContext: string;
+  schema?: string;
+  dialect?: string;
+  businessContext?: string;
 }
 
 export interface AdminAssistantChatResponse {
   sql: string;
+  answer: string;
   explanation: string;
   assumptions: string[];
+  evidence: string[];
+  notice: string | null;
   model: string;
   meta: {
     requestId?: string;
@@ -27,14 +30,6 @@ export interface AdminAssistantChatResponse {
 }
 
 export const ADMIN_ASSISTANT_ENDPOINT = '/api/ai/sql-assistant';
-
-const ADMIN_ASSISTANT_SCHEMA = [
-  'customers(id, name, email, company, status, assigned_sales_rep, created_at)',
-  'quotes(id, customer_id, status, total_amount, created_at)',
-  'orders(id, customer_id, quote_id, status, total_amount, created_at)',
-  'products(id, sku, name, category_id, price, stock, is_active)',
-  'inventory_movements(id, product_id, movement_type, quantity, created_at)',
-].join('\n');
 
 const ADMIN_ASSISTANT_SUGGESTIONS: AdminAssistantSuggestion[] = [
   {
@@ -93,12 +88,11 @@ export function buildAdminAssistantRequest(
 
   return {
     question: normalizedQuestion,
-    schema: ADMIN_ASSISTANT_SCHEMA,
     dialect: 'PostgreSQL',
     businessContext:
       userRole === 'root'
-        ? 'ERP interno de Proton Lab con visión global para root/admin sobre clientes, cotizaciones, pedidos, inventario y operación.'
-        : 'ERP interno de Proton Lab para administración comercial y operativa de clientes, cotizaciones, pedidos e inventario.',
+        ? 'ERP interno de Proton Lab con visión global root/admin. El backend debe usar su AI Context Registry operativo.'
+        : 'ERP interno de Proton Lab para administración comercial y operativa. El backend debe usar su AI Context Registry operativo.',
   };
 }
 
@@ -107,8 +101,11 @@ export function normalizeAdminAssistantResponse(
 ): AdminAssistantChatResponse {
   return {
     sql: response.sql || '-- Sin SQL generado',
+    answer: response.answer || response.explanation || 'Sin respuesta del asistente.',
     explanation: response.explanation || 'Sin explicación del asistente.',
     assumptions: response.assumptions || [],
+    evidence: response.evidence || [],
+    notice: response.notice || null,
     model: response.model || 'modelo-no-reportado',
     meta: {
       requestId: response.meta?.requestId,
@@ -122,12 +119,16 @@ export function createPendingAssistantResponse(
 ): AdminAssistantChatResponse {
   return {
     sql: '-- El backend aún no respondió a esta consulta.',
+    answer:
+      'Estoy preparando la respuesta. Si la consulta revisa muchos datos, puede demorar un poco más.',
     explanation:
       'La interfaz está preparada, pero todavía no hay una respuesta confirmada del backend para la consulta actual.',
     assumptions: [
       `Consulta solicitada: ${question.trim()}`,
       `Endpoint esperado: ${ADMIN_ASSISTANT_ENDPOINT}`,
     ],
+    evidence: [],
+    notice: null,
     model: 'backend_pending',
     meta: {
       requestId: 'pending-backend',
