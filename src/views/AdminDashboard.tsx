@@ -41,6 +41,7 @@ import { API_BASE_URL } from '../config/env';
 import { auth } from '../lib/firebase';
 import { toast } from '../components/ui/Toast';
 import { backendApi, Invoice, PurchaseOrder } from '../features/api/backendApiService';
+import { ApiRequestError } from '../lib/apiContract';
 import { isOperationalOrderStatus } from '../features/orders/orderFlow';
 import { adminModules, AdminModuleId } from '../features/admin/adminModules';
 import '../pages/admin/AdminDashboard.css';
@@ -146,6 +147,22 @@ type SettingsNode = {
   details: string[];
   icon: any;
 };
+
+function getActionErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiRequestError) {
+    return error.message;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
+}
+
+function resolveAdministrativeRole(role: User['role'] | string | undefined): Extract<User['role'], 'admin' | 'root'> {
+  return role === 'root' ? 'root' : 'admin';
+}
 
 function SupportManagement() {
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
@@ -562,6 +579,7 @@ function BillingManagement({ userRole }: { userRole: User['role'] }) {
   const [buyerReference, setBuyerReference] = useState('');
   const [selectedPurchaseOrderId, setSelectedPurchaseOrderId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const billingRole = resolveAdministrativeRole(userRole);
 
   const loadBilling = useCallback(async () => {
     setIsLoading(true);
@@ -597,32 +615,35 @@ function BillingManagement({ userRole }: { userRole: User['role'] }) {
           sourceOrderId: selectedOrderId,
           buyerReference: buyerReference || undefined,
           requestedBy: 'Administración ProtonLab',
-          requestedByRole: userRole,
+          requestedByRole: billingRole,
         },
-        userRole
+        billingRole
       );
       setSelectedPurchaseOrderId(response.data.id);
+      setPurchaseOrders((current) => [response.data, ...current.filter((item) => item.id !== response.data.id)]);
       setBuyerReference('');
-      await loadBilling();
       toast.success('Orden de compra creada');
     } catch (error) {
       console.error('Error creating purchase order:', error);
-      toast.error('No se pudo crear la orden de compra');
+      toast.error(getActionErrorMessage(error, 'No se pudo crear la orden de compra'));
     }
   };
 
   const approvePurchaseOrder = async (purchaseOrderId: string) => {
     try {
-      await backendApi.approvePurchaseOrder(
+      const response = await backendApi.approvePurchaseOrder(
         purchaseOrderId,
-        { approved: true, notes: 'Aprobación administrativa desde ERP' },
-        userRole
+        { approved: true, notes: 'Aprobación administrativa desde ERP', approvedBy: auth.currentUser?.email || 'admin@protonlab.com' },
+        billingRole
       );
-      await loadBilling();
+      setPurchaseOrders((current) =>
+        current.map((purchaseOrder) => (purchaseOrder.id === response.data.id ? response.data : purchaseOrder))
+      );
+      setSelectedPurchaseOrderId(response.data.id);
       toast.success('Orden de compra aprobada');
     } catch (error) {
       console.error('Error approving purchase order:', error);
-      toast.error('No se pudo aprobar la orden de compra');
+      toast.error(getActionErrorMessage(error, 'No se pudo aprobar la orden de compra'));
     }
   };
 
@@ -633,20 +654,28 @@ function BillingManagement({ userRole }: { userRole: User['role'] }) {
       return;
     }
     try {
-      await backendApi.createInvoice(
+      const response = await backendApi.createInvoice(
         {
           sourceOrderId: purchaseOrder.sourceOrderId,
           purchaseOrderId: purchaseOrder.id,
           billingReference: purchaseOrder.buyerReference,
-          role: userRole,
+          role: billingRole,
         },
-        userRole
+        billingRole
       );
-      await loadBilling();
+      setInvoices((current) => [response.data, ...current.filter((invoice) => invoice.id !== response.data.id)]);
+      setPurchaseOrders((current) =>
+        current.map((item) =>
+          item.id === purchaseOrder.id
+            ? { ...item, status: 'facturada' as const, updatedAt: response.data.updatedAt }
+            : item
+        )
+      );
+      setSelectedPurchaseOrderId('');
       toast.success('Factura emitida');
     } catch (error) {
       console.error('Error creating invoice:', error);
-      toast.error('No se pudo emitir la factura');
+      toast.error(getActionErrorMessage(error, 'No se pudo emitir la factura'));
     }
   };
 
