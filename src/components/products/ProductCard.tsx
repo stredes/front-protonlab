@@ -6,18 +6,24 @@ import GlareHover from '../ui/GlareHover';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useCart } from '../../features/cart/cartContext';
 import { ROUTES } from '../../config/routes';
+import { WishlistButton } from '../ui/WishlistButton';
+import ProductImage from './ProductImage';
+import { resolveProductImageUrl } from '../../features/catalog/imagePerformance';
 import './ProductCard.css';
 
 type ProductCardProps = {
   product: Product;
   categoryName?: string;
   onQuote: (product: Product) => void;
+  priorityImage?: boolean;
 };
 
-const fallbackImage =
-  'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="640" height="420" viewBox="0 0 640 420"><rect width="640" height="420" fill="%23f5f7fa"/><rect x="40" y="40" width="560" height="340" rx="24" fill="%23ffffff" stroke="%23d6dde8" stroke-width="2"/><text x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="28" fill="%230b1f33">PROTONLAB</text></svg>';
-
-const ProductCard = memo(function ProductCard({ product, categoryName: _categoryName, onQuote }: ProductCardProps) {
+const ProductCard = memo(function ProductCard({
+  product,
+  categoryName: _categoryName,
+  onQuote,
+  priorityImage = false,
+}: ProductCardProps) {
   const { addItem } = useCart();
   
   const detailPath = useMemo(
@@ -26,11 +32,11 @@ const ProductCard = memo(function ProductCard({ product, categoryName: _category
   );
   
   const imageSrc = useMemo(() => {
-    const candidate = product.imageUrl?.trim() || product.image?.trim();
-    return candidate ? candidate : fallbackImage;
+    return resolveProductImageUrl(product.imageUrl, product.image);
   }, [product.image, product.imageUrl]);
 
   const productCode = useMemo(() => product.code?.trim() || 'Sin código', [product.code]);
+  const productPrice = useMemo(() => product.price ?? product.precio, [product.price, product.precio]);
   const stockLabel = useMemo(() => {
     if (typeof product.stock !== 'number') {
       return 'Stock no informado';
@@ -63,19 +69,25 @@ const ProductCard = memo(function ProductCard({ product, categoryName: _category
       <div className="product-card">
         {/* Imagen del producto */}
         <div className="product-card__image">
-          <img 
-            src={imageSrc}
+          <ProductImage
+            imageUrl={product.imageUrl}
+            image={product.image}
             alt={product.name}
-            loading="lazy"
-            decoding="async"
+            priority={priorityImage}
             className="product-card__img"
-            onError={(event) => {
-              if (event.currentTarget.src !== fallbackImage) {
-                event.currentTarget.src = fallbackImage;
-              }
-            }}
           />
           <div className="product-card__badge">{product.brand || 'Protonlab'}</div>
+          <WishlistButton
+            productId={product.id}
+            productName={product.name}
+            productPrice={productPrice}
+            productImage={imageSrc}
+            productSlug={product.slug}
+            productBrand={product.brand}
+            productCategory={product.categoryId}
+            size="md"
+            className="product-card__wishlist"
+          />
           <div className="product-card__summary">
             <h3 className="product-card__title" title={product.name}>
               {product.name}

@@ -7,6 +7,7 @@ import { getCategories, getProductBySlug } from '../../features/catalog/catalogA
 import { Product, ProductCategory } from '../../features/catalog/types';
 import { ROUTES } from '../../config/routes';
 import QuoteRequestModal from '../../components/products/QuoteRequestModal';
+import ProductImage from '../../components/products/ProductImage';
 
 // Página de detalle de producto con carga de catálogo y modal de cotización.
 function ProductDetailPage() {
@@ -92,9 +93,12 @@ function ProductDetailPage() {
           </p>
         </div>
         <div className="card">
-          <img
-            src={product.imageUrl || product.image}
+          <ProductImage
+            imageUrl={product.imageUrl}
+            image={product.image}
             alt={product.name}
+            priority
+            sizes="(min-width: 900px) 45vw, 100vw"
             className="product-detail-image"
           />
           <p className="muted">Categoría: {categoryName}</p>

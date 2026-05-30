@@ -1,5 +1,5 @@
 import { API_BASE_URL, API_VERSION, ENABLE_API_DIAGNOSTICS } from '../../config/env';
-import { Order, OrderProduct, ShippingAddress } from '../auth/types';
+import { Order, OrderProduct, ShippingAddress, User } from '../auth/types';
 import { auth } from '../../lib/firebase';
 import { ApiRequestError, mapApiErrorMessage, resolveApiEndpoint } from '../../lib/apiContract';
 
@@ -83,6 +83,72 @@ export interface ListOrdersParams {
   orderNumber?: string;
   page?: number;
   pageSize?: number;
+}
+
+export interface RoleApproval {
+  role: User['role'];
+  approved: boolean;
+  approvedBy?: string;
+  notes?: string;
+  approvedAt: string;
+}
+
+export interface PurchaseOrder {
+  id: string;
+  purchaseOrderNumber: string;
+  sourceOrderId: string;
+  buyerReference?: string;
+  requestedBy?: string;
+  customerName: string;
+  customerEmail: string;
+  organization: string;
+  items: OrderProduct[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  shippingCost: number;
+  total: number;
+  status: 'pendiente_aprobacion' | 'aprobada' | 'rechazada' | 'facturada' | 'cancelada';
+  approvals: RoleApproval[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  sourceOrderId: string;
+  purchaseOrderId?: string;
+  billingReference?: string;
+  customerName: string;
+  customerEmail: string;
+  organization: string;
+  items: OrderProduct[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  shippingCost: number;
+  total: number;
+  status: 'borrador' | 'emitida' | 'anulada';
+  paymentStatus: Order['paymentStatus'];
+  issuedByRole: User['role'];
+  issuedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePurchaseOrderRequest {
+  sourceOrderId: string;
+  buyerReference?: string;
+  requestedBy?: string;
+  requestedByRole?: User['role'];
+}
+
+export interface CreateInvoiceRequest {
+  sourceOrderId: string;
+  purchaseOrderId?: string;
+  billingReference?: string;
+  role?: User['role'];
 }
 
 export interface ApiResponse<T> {
@@ -237,6 +303,83 @@ class BackendApiService {
   async cancelOrder(orderId: string): Promise<ApiResponse<{ message: string }>> {
     return this.request<ApiResponse<{ message: string }>>(`/api/orders/${orderId}`, {
       method: 'DELETE',
+    });
+  }
+
+  // ==================== PURCHASE ORDERS & BILLING ====================
+
+  async createPurchaseOrder(
+    data: CreatePurchaseOrderRequest,
+    role: User['role'] = data.requestedByRole || 'socio'
+  ): Promise<ApiResponse<PurchaseOrder>> {
+    return this.request<ApiResponse<PurchaseOrder>>('/api/purchase-orders', {
+      method: 'POST',
+      headers: { 'x-user-role': role },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listPurchaseOrders(params: {
+    status?: PurchaseOrder['status'];
+    sourceOrderId?: string;
+    customerEmail?: string;
+    page?: number;
+    pageSize?: number;
+  } = {}): Promise<ApiResponse<PaginatedResponse<PurchaseOrder>>> {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) queryParams.append(key, value.toString());
+    });
+    const queryString = queryParams.toString();
+    return this.request<ApiResponse<PaginatedResponse<PurchaseOrder>>>(
+      `/api/purchase-orders${queryString ? `?${queryString}` : ''}`
+    );
+  }
+
+  async approvePurchaseOrder(
+    purchaseOrderId: string,
+    payload: { approved: boolean; notes?: string; approvedBy?: string },
+    role: User['role']
+  ): Promise<ApiResponse<PurchaseOrder>> {
+    return this.request<ApiResponse<PurchaseOrder>>(`/api/purchase-orders/${purchaseOrderId}/approve`, {
+      method: 'POST',
+      headers: { 'x-user-role': role },
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async createInvoice(data: CreateInvoiceRequest, role: User['role'] = data.role || 'admin'): Promise<ApiResponse<Invoice>> {
+    return this.request<ApiResponse<Invoice>>('/api/invoices', {
+      method: 'POST',
+      headers: { 'x-user-role': role },
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listInvoices(params: {
+    status?: Invoice['status'];
+    paymentStatus?: Invoice['paymentStatus'];
+    sourceOrderId?: string;
+    page?: number;
+    pageSize?: number;
+  } = {}): Promise<ApiResponse<PaginatedResponse<Invoice>>> {
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) queryParams.append(key, value.toString());
+    });
+    const queryString = queryParams.toString();
+    return this.request<ApiResponse<PaginatedResponse<Invoice>>>(`/api/invoices${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async updateInvoice(
+    invoiceId: string,
+    updates: { status?: Invoice['status']; paymentStatus?: Invoice['paymentStatus'] },
+    role: User['role']
+  ): Promise<ApiResponse<Invoice>> {
+    return this.request<ApiResponse<Invoice>>(`/api/invoices/${invoiceId}`, {
+      method: 'PATCH',
+      headers: { 'x-user-role': role },
+      body: JSON.stringify(updates),
     });
   }
 

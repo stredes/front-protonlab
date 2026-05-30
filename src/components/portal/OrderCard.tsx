@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Order } from '../../features/auth/types';
 import { FiDownload, FiX, FiMessageCircle, FiAlertCircle, FiEye } from 'react-icons/fi';
 import { orderService } from '../../features/cart/services/orderService';
+import { getOrderFlowLabel, isOperationalOrderStatus } from '../../features/orders/orderFlow';
 import { toast } from '../ui/Toast';
 
 interface OrderCardProps {
@@ -12,7 +13,6 @@ interface OrderCardProps {
 
 const statusConfig = {
   'cotizacion': { label: 'Cotización', color: '#9E9E9E', icon: '📝' },
-  'pendiente': { label: 'Pendiente', color: '#FFA500', icon: '⏳' },
   'pendiente_vendedor': { label: 'Pendiente Vendedor', color: '#FF9800', icon: '⏰' },
   'aprobado_vendedor': { label: 'Aprobado Vendedor', color: '#03A9F4', icon: '👍' },
   'pendiente_admin': { label: 'Pendiente Admin', color: '#FF9800', icon: '⏰' },
@@ -46,13 +46,14 @@ export function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
     currency: 'CLP'
   }).format(order.total);
 
-  const canCancel = ['pendiente', 'confirmado'].includes(order.status);
+  const canCancel = isOperationalOrderStatus(order.status) && order.status === 'confirmado';
+  const isOrder = isOperationalOrderStatus(order.status);
 
   const handleDownloadInvoice = () => {
     // Generar CSV con información de la orden
     const content = [
-      'Factura / Invoice',
-      `Número de Orden: ${order.orderNumber}`,
+      isOrder ? 'Comprobante de Orden' : 'Comprobante de Cotización',
+      `${isOrder ? 'Número de Orden' : 'Número de Cotización'}: ${order.orderNumber}`,
       `Fecha: ${new Date(order.date).toLocaleDateString('es-CL')}`,
       `Estado: ${status.label}`,
       '',
@@ -69,10 +70,10 @@ export function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `factura_${order.orderNumber}.txt`;
+    a.download = `${isOrder ? 'orden' : 'cotizacion'}_${order.orderNumber}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Factura descargada');
+    toast.success(`${isOrder ? 'Orden' : 'Cotización'} descargada`);
   };
 
   const handleCancelOrder = async () => {
@@ -110,7 +111,7 @@ export function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
         </div>
         <div className="order-status" style={{ '--status-color': status.color } as any}>
           <span className="order-status__icon">{status.icon}</span>
-          <span className="order-status__label">{status.label}</span>
+          <span className="order-status__label">{getOrderFlowLabel(order.status) || status.label}</span>
         </div>
       </div>
 
@@ -160,7 +161,7 @@ export function OrderCard({ order, onOrderUpdated }: OrderCardProps) {
           title="Descargar factura"
         >
           <FiDownload size={18} />
-          Factura
+          {isOrder ? 'Orden' : 'Cotización'}
         </button>
         
         <button 

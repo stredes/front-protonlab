@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { FiHeart, FiPlus, FiEdit2, FiTrash2, FiShare2, FiDownload, FiX, FiMove } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import { FiHeart, FiPlus, FiEdit2, FiTrash2, FiShare2, FiDownload, FiX, FiMove, FiShoppingCart, FiEye } from 'react-icons/fi';
 import { useWishlist } from '../../contexts/WishlistContext';
+import { useCart } from '../../features/cart/cartContext';
 import './WishlistManager.css';
 
 export function WishlistManager() {
+  const { addItem } = useCart();
   const {
     lists,
     currentListId,
@@ -57,6 +60,24 @@ export function WishlistManager() {
       setShowMoveModal(false);
       setSelectedItemId('');
     }
+  };
+
+  const handleAddToCart = (item: NonNullable<typeof currentList>['items'][number]) => {
+    addItem({
+      id: item.id,
+      slug: item.slug || item.id,
+      name: item.name,
+      categoryId: item.category || '',
+      brand: item.brand || '',
+      shortDescription: '',
+      longDescription: '',
+      specs: {},
+      requiresInstallation: false,
+      image: item.image,
+      imageUrl: item.image,
+      price: item.price,
+      precio: item.price,
+    });
   };
 
   const totalItems = getTotalItems();
@@ -167,6 +188,20 @@ export function WishlistManager() {
                       )}
                     </div>
                     <div className="wishlist-item__actions">
+                      <button
+                        onClick={() => handleAddToCart(item)}
+                        className="wishlist-item-btn wishlist-item-btn--cart"
+                        title="Agregar al carrito"
+                      >
+                        <FiShoppingCart size={16} />
+                      </button>
+                      <Link
+                        to={`/productos/${item.slug || item.id}`}
+                        className="wishlist-item-btn"
+                        title="Ver producto"
+                      >
+                        <FiEye size={16} />
+                      </Link>
                       {lists.length > 1 && (
                         <button
                           onClick={() => {

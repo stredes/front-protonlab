@@ -24,6 +24,11 @@ const catalogAssetUrls = import.meta.glob('/src/assets/images/**/*.{png,jpg,jpeg
   import: 'default',
 }) as Record<string, string>;
 
+function preferWebpAssetPath(path: string): string {
+  const webpPath = path.replace(/\.(png|jpe?g)$/i, '.webp');
+  return catalogAssetUrls[webpPath] ? webpPath : path;
+}
+
 function resolveCatalogAssetUrl(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined;
   const trimmed = value.trim();
@@ -33,8 +38,9 @@ function resolveCatalogAssetUrl(value: unknown): string | undefined {
   if (!trimmed.startsWith('/src/assets/images/')) return trimmed;
 
   // Imagen del bundle: resolver con Vite
-  const resolved = catalogAssetUrls[trimmed];
-  return resolved && resolved !== trimmed ? resolved : `${trimmed}?url`;
+  const optimizedPath = preferWebpAssetPath(trimmed);
+  const resolved = catalogAssetUrls[optimizedPath];
+  return resolved && resolved !== optimizedPath ? resolved : `${optimizedPath}?url`;
 }
 
 function normalizeFrontendHref(href: string | undefined, slug: string, id: string): string {

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../features/auth/authStore';
 import { authApi } from '../../features/auth/authApi';
 import { Order, User } from '../../features/auth/types';
+import { isActiveQuoteStatus, isOperationalOrderStatus, isTerminalQuoteStatus } from '../../features/orders/orderFlow';
 import { SalesMetricCard } from '../../components/vendor/SalesMetricCard';
 import { ClientCard } from '../../components/vendor/ClientCard';
 import { VendorOrderList } from '../../components/vendor/VendorOrderList';
@@ -57,20 +58,23 @@ export function VendorDashboardPage() {
     return <Navigate to={ROUTES.partnerPortal} replace />;
   }
 
-  // Calcular métricas
-  const totalSales = orders.reduce((sum, order) => {
+  const quoteOrders = orders.filter((order) => isActiveQuoteStatus(order.status) || isTerminalQuoteStatus(order.status));
+  const operationalOrders = orders.filter((order) => isOperationalOrderStatus(order.status));
+
+  // Calcular métricas sobre pedidos convertidos, no sobre cotizaciones
+  const totalSales = operationalOrders.reduce((sum, order) => {
     if (order.status !== 'cancelado') return sum + order.total;
     return sum;
   }, 0);
 
-  const activeOrders = orders.filter(o => 
+  const activeOrders = operationalOrders.filter(o => 
     o.status !== 'entregado' && o.status !== 'cancelado'
   ).length;
 
-  const completedOrders = orders.filter(o => o.status === 'entregado').length;
+  const completedOrders = operationalOrders.filter(o => o.status === 'entregado').length;
   
   // Calcular cotizaciones pendientes
-  const pendingQuotations = orders.filter(
+  const pendingQuotations = quoteOrders.filter(
     o => o.status === 'cotizacion' || o.status === 'pendiente_vendedor'
   ).length;
   
@@ -85,11 +89,11 @@ export function VendorDashboardPage() {
     }).format(amount);
   };
 
-  const quotationReview = orders.filter((order) => order.status === 'aprobado_vendedor').length;
-  const quotedOrders = orders.filter((order) => order.status === 'cotizacion' || order.status === 'pendiente_vendedor').length;
-  const inNegotiation = orders.filter((order) => order.status === 'pendiente_admin' || order.status === 'aprobado_vendedor').length;
-  const shippingOrders = orders.filter((order) => order.status === 'enviado').length;
-  const atRiskOrders = orders.filter((order) => order.status === 'cancelado').length;
+  const quotationReview = quoteOrders.filter((order) => order.status === 'aprobado_vendedor').length;
+  const quotedOrders = quoteOrders.filter((order) => order.status === 'cotizacion' || order.status === 'pendiente_vendedor').length;
+  const inNegotiation = quoteOrders.filter((order) => order.status === 'pendiente_admin' || order.status === 'aprobado_vendedor').length;
+  const shippingOrders = operationalOrders.filter((order) => order.status === 'enviado').length;
+  const atRiskOrders = quoteOrders.filter((order) => order.status === 'rechazado').length;
   const bestClient = clients[0];
 
   const handleRefreshDashboard = async () => {
@@ -114,7 +118,7 @@ export function VendorDashboardPage() {
   };
 
   const handleExportOrders = () => {
-    if (!orders.length) {
+    if (!operationalOrders.length) {
       toast.error('No hay pedidos para exportar');
       return;
     }
@@ -122,7 +126,7 @@ export function VendorDashboardPage() {
     exportRowsToCsv(
       [
         ['orderNumber', 'customer', 'email', 'status', 'total', 'date'],
-        ...orders.map((order) => [
+        ...operationalOrders.map((order) => [
           order.orderNumber,
           order.customerName,
           order.customerEmail,
@@ -202,7 +206,7 @@ export function VendorDashboardPage() {
             </button>
             <button className={`vendor-sidebar__item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
               <span>📦 Pedidos</span>
-              <span className="vendor-sidebar__counter">{orders.length}</span>
+              <span className="vendor-sidebar__counter">{operationalOrders.length}</span>
             </button>
             <button className={`vendor-sidebar__item ${activeTab === 'pipeline' ? 'active' : ''}`} onClick={() => setActiveTab('pipeline')}>
               💼 Pipeline
@@ -321,7 +325,7 @@ export function VendorDashboardPage() {
           {activeTab === 'quotations' && (
             <div className="vendor-quotations">
               <div className="vendor-section">
-                <QuotationApproval orders={orders} onOrderUpdate={loadData} />
+                <QuotationApproval orders={quoteOrders} onOrderUpdate={loadData} />
               </div>
             </div>
           )}
@@ -352,7 +356,7 @@ export function VendorDashboardPage() {
           {activeTab === 'orders' && (
             <div className="vendor-orders">
               <div className="vendor-section">
-                <VendorOrderList orders={orders} />
+                <VendorOrderList orders={operationalOrders} />
               </div>
             </div>
           )}

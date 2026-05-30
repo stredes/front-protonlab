@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useCart } from '../../features/cart/cartContext';
 import { FiX, FiShoppingCart, FiTrash2, FiSend, FiDownload, FiCreditCard } from 'react-icons/fi';
 import { toast } from '../ui/Toast';
-import { syncQuote } from '../../lib/serviceWorker';
 import { CheckoutModal } from './CheckoutModal';
 import './CartDrawer.css';
 
@@ -13,47 +12,12 @@ interface CartDrawerProps {
 
 export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { items, removeItem, updateQuantity, updateNotes, clearCart } = useCart();
-  const [isSending, setIsSending] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutMode, setCheckoutMode] = useState<'quote' | 'order'>('quote');
 
-  const handleSendQuote = async () => {
-    setIsSending(true);
-    try {
-      const quoteData = {
-        items: items.map(item => ({
-          productId: item.id,
-          name: item.name,
-          brand: item.brand,
-          quantity: item.quantity,
-          notes: item.notes,
-        })),
-        timestamp: Date.now(),
-      };
-
-      // Try to send immediately
-      if (navigator.onLine) {
-        // Simular envío - aquí iría la llamada al backend
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        console.log('Cotización enviada:', quoteData);
-        toast.success('Cotización enviada al vendedor');
-      } else {
-        // Offline: use background sync
-        const synced = await syncQuote(quoteData);
-        if (synced) {
-          toast.success('Cotización guardada. Se enviará cuando haya conexión');
-        } else {
-          toast.error('Error al guardar cotización para envío posterior');
-        }
-      }
-      
-      clearCart();
-      onClose();
-    } catch (error) {
-      toast.error('Error al enviar cotización');
-    } finally {
-      setIsSending(false);
-    }
+  const openCheckout = (mode: 'quote' | 'order') => {
+    setCheckoutMode(mode);
+    setShowCheckout(true);
   };
 
   const handleExport = () => {
@@ -174,15 +138,14 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="cart-drawer__main-actions">
               <button
                 className="cart-drawer__send-btn cart-drawer__send-btn--secondary"
-                onClick={handleSendQuote}
-                disabled={isSending}
+                onClick={() => openCheckout('quote')}
               >
                 <FiSend size={18} />
-                {isSending ? 'Enviando...' : 'Solicitar Cotización'}
+                Solicitar Cotización
               </button>
               <button
                 className="cart-drawer__send-btn cart-drawer__send-btn--primary"
-                onClick={() => setShowCheckout(true)}
+                onClick={() => openCheckout('order')}
               >
                 <FiCreditCard size={18} />
                 Realizar Pedido
@@ -195,9 +158,14 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       {/* Checkout Modal */}
       <CheckoutModal
         isOpen={showCheckout}
+        mode={checkoutMode}
         onClose={() => setShowCheckout(false)}
         onSuccess={() => {
-          toast.success('¡Pedido realizado con éxito!');
+          toast.success(
+            checkoutMode === 'quote'
+              ? 'Cotización enviada al flujo comercial'
+              : 'Orden de compra enviada a operaciones'
+          );
           onClose();
         }}
       />

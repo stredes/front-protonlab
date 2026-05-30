@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { orderService } from '../../features/cart/services/orderService';
+import { authApi } from '../../features/auth/authApi';
 import { Order } from '../../features/auth/types';
+import { isActiveQuoteStatus, isOperationalOrderStatus, isTerminalQuoteStatus } from '../../features/orders/orderFlow';
 import { FiArrowLeft, FiPackage, FiTruck, FiCheck, FiDownload, FiMessageCircle } from 'react-icons/fi';
 import Loader from '../../components/ui/Loader';
 import { FadeIn } from '../../components/ui/FadeIn';
@@ -9,7 +11,12 @@ import { toast } from '../../components/ui/Toast';
 import './OrderDetailPage.css';
 
 const statusConfig = {
-  'pendiente': { label: 'Pendiente', color: '#FFA500', icon: '⏳' },
+  'cotizacion': { label: 'Cotización nueva', color: '#8B5CF6', icon: '📝' },
+  'pendiente_vendedor': { label: 'Pendiente de vendedor', color: '#F59E0B', icon: '⏳' },
+  'aprobado_vendedor': { label: 'Aprobada por vendedor', color: '#3B82F6', icon: '✅' },
+  'pendiente_admin': { label: 'Pendiente de administración', color: '#F97316', icon: '🧾' },
+  'aprobado_admin': { label: 'Aprobada por administración', color: '#0EA5E9', icon: '✓✓' },
+  'rechazado': { label: 'Cotización rechazada', color: '#E91E63', icon: '🚫' },
   'confirmado': { label: 'Confirmado', color: '#00BCD4', icon: '✓' },
   'procesando': { label: 'Procesando', color: '#2196F3', icon: '📦' },
   'enviado': { label: 'Enviado', color: '#9C27B0', icon: '🚚' },
@@ -32,9 +39,15 @@ export function OrderDetailPage() {
     setError(null);
     
     try {
-      const orderData = await orderService.getOrderById(orderId);
+      const orderData = await authApi.getOrderById(orderId);
       if (!orderData) {
-        setError('Pedido no encontrado');
+        const orders = await authApi.getOrders();
+        const fallbackOrder = orders.find((item) => item.id === orderId);
+        if (fallbackOrder) {
+          setOrder(fallbackOrder);
+        } else {
+          setError('Pedido o cotización no encontrado');
+        }
       } else {
         setOrder(orderData);
       }
@@ -85,45 +98,73 @@ export function OrderDetailPage() {
     );
   }
 
-  const status = statusConfig[order.status];
+  const status = statusConfig[order.status] || { label: order.status, color: '#757575', icon: '📋' };
   const total = new Intl.NumberFormat('es-CL', {
     style: 'currency',
     currency: 'CLP'
   }).format(order.total);
 
   const getStatusTimeline = () => {
-    const allStatuses: Array<keyof typeof statusConfig> = [
-      'pendiente',
+    const quoteStatuses: Array<Order['status']> = [
+      'cotizacion',
+      'pendiente_vendedor',
+      'aprobado_vendedor',
+      'pendiente_admin',
+      'aprobado_admin'
+    ];
+    const orderStatuses: Array<Order['status']> = [
       'confirmado',
       'procesando',
       'enviado',
       'entregado'
     ];
+
+    if (isTerminalQuoteStatus(order.status)) {
+      return ['rechazado'];
+    }
 
     if (order.status === 'cancelado') {
       return ['cancelado'];
     }
 
-    return allStatuses;
+    if (isActiveQuoteStatus(order.status)) {
+      return quoteStatuses;
+    }
+
+    return orderStatuses;
   };
 
-  const isStatusCompleted = (checkStatus: keyof typeof statusConfig) => {
-    const allStatuses: Array<keyof typeof statusConfig> = [
-      'pendiente',
+  const isStatusCompleted = (checkStatus: Order['status']) => {
+    const quoteStatuses: Array<Order['status']> = [
+      'cotizacion',
+      'pendiente_vendedor',
+      'aprobado_vendedor',
+      'pendiente_admin',
+      'aprobado_admin'
+    ];
+    const orderStatuses: Array<Order['status']> = [
       'confirmado',
       'procesando',
       'enviado',
       'entregado'
     ];
 
+    if (isTerminalQuoteStatus(order.status)) {
+      return checkStatus === 'rechazado';
+    }
+
     if (order.status === 'cancelado') {
       return checkStatus === 'cancelado';
     }
 
-    const currentIndex = allStatuses.indexOf(order.status);
-    const checkIndex = allStatuses.indexOf(checkStatus);
+    const statuses = isOperationalOrderStatus(order.status) ? orderStatuses : quoteStatuses;
+    const currentIndex = statuses.indexOf(order.status);
+    const checkIndex = statuses.indexOf(checkStatus);
+    if (currentIndex === -1 || checkIndex === -1) return false;
     return checkIndex <= currentIndex;
   };
+
+  const isOrder = isOperationalOrderStatus(order.status);
 
   return (
     <div className="order-detail-page">
@@ -134,7 +175,7 @@ export function OrderDetailPage() {
             Volver
           </button>
           <div className="order-detail-header__info">
-            <h1>Pedido {order.orderNumber}</h1>
+            <h1>{isOrder ? 'Pedido' : 'Cotización'} {order.orderNumber}</h1>
             <p className="muted">Realizado el {new Date(order.date).toLocaleDateString('es-CL', {
               year: 'numeric',
               month: 'long',
@@ -155,11 +196,11 @@ export function OrderDetailPage() {
         {/* Timeline */}
         <FadeIn direction="up" delay={0.1}>
           <div className="order-timeline-card">
-            <h2>Estado del Pedido</h2>
+            <h2>{isOrder ? 'Estado del Pedido' : 'Estado de la Cotización'}</h2>
             <div className="order-timeline">
               {getStatusTimeline().map((timelineStatus, index) => {
-                const statusInfo = statusConfig[timelineStatus as keyof typeof statusConfig];
-                const isCompleted = isStatusCompleted(timelineStatus as keyof typeof statusConfig);
+                const statusInfo = statusConfig[timelineStatus];
+                const isCompleted = isStatusCompleted(timelineStatus);
                 const isCurrent = order.status === timelineStatus;
 
                 return (
@@ -214,13 +255,15 @@ export function OrderDetailPage() {
           {/* Información de Envío */}
           <FadeIn direction="up" delay={0.3}>
             <div className="order-info-card">
-              <h2>Información de Envío</h2>
+              <h2>{isOrder ? 'Información de Envío' : 'Información Comercial'}</h2>
               <div className="order-info-item">
                 <FiPackage className="order-info-icon" />
                 <div>
-                  <strong>Dirección de Entrega</strong>
+                  <strong>{isOrder ? 'Dirección de Entrega' : 'Estado Comercial'}</strong>
                   <p className="muted">
-                    {order.trackingNumber ? order.trackingNumber : 'Por confirmar'}
+                    {isOrder
+                      ? order.trackingNumber || 'Por confirmar'
+                      : status.label}
                   </p>
                 </div>
               </div>
@@ -254,7 +297,7 @@ export function OrderDetailPage() {
           <div className="order-actions-card">
             <button className="btn btn--secondary">
               <FiDownload />
-              Descargar Factura
+              {isOrder ? 'Descargar Factura' : 'Descargar Cotización'}
             </button>
             <button className="btn btn--secondary">
               <FiMessageCircle />

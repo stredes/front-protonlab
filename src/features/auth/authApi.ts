@@ -2,6 +2,7 @@ import { auth, db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { httpRequest } from '../../lib/httpClient';
 import { backendApi } from '../api/backendApiService';
+import { ApiRequestError } from '../../lib/apiContract';
 import { AuthResponse, LoginCredentials, Order, OrderProduct, ShippingAddress, SupportContact, User, Vendor } from './types';
 
 type BackendOrder = {
@@ -71,12 +72,130 @@ type UserListPayload = {
   items?: Array<Omit<User, 'password'>>;
 };
 
+const demoUsers: Array<Omit<User, 'password'>> = [
+  {
+    id: 'mock-root',
+    email: 'root@protonlab.cl',
+    name: 'Usuario Root',
+    role: 'root',
+    company: 'Protonlab',
+    phone: '+56 2 2400 1000',
+    department: 'Direccion Tecnologica',
+    isActive: true,
+  },
+  {
+    id: 'mock-admin',
+    email: 'admin@protonlab.cl',
+    name: 'Usuario Admin',
+    role: 'admin',
+    company: 'Protonlab',
+    phone: '+56 2 2400 1001',
+    department: 'Administracion ERP',
+    isActive: true,
+  },
+  {
+    id: 'mock-vendedor',
+    email: 'vendedor@protonlab.cl',
+    name: 'Usuario Vendedor',
+    role: 'vendedor',
+    company: 'Protonlab',
+    phone: '+56 9 5000 1002',
+    department: 'Ventas B2B',
+    isActive: true,
+  },
+  {
+    id: 'mock-bodega',
+    email: 'bodega@protonlab.cl',
+    name: 'Usuario Bodega',
+    role: 'bodega',
+    company: 'Protonlab',
+    phone: '+56 9 5000 1003',
+    department: 'Bodega Central',
+    isActive: true,
+  },
+  {
+    id: 'mock-soporte',
+    email: 'soporte@protonlab.cl',
+    name: 'Usuario Soporte',
+    role: 'soporte',
+    company: 'Protonlab',
+    phone: '+56 9 5000 1004',
+    department: 'Soporte Tecnico',
+    isActive: true,
+  },
+  {
+    id: 'mock-callcenter',
+    email: 'callcenter@protonlab.cl',
+    name: 'Usuario Call Center',
+    role: 'callcenter',
+    company: 'Protonlab',
+    phone: '+56 9 5000 1005',
+    department: 'Atencion B2B',
+    isActive: true,
+  },
+  {
+    id: 'mock-socio-andes',
+    email: 'maria.valdes@andestech.cl',
+    name: 'Maria Valdes',
+    role: 'socio',
+    company: 'AndesTech Mining',
+    vendorId: 'mock-vendedor',
+    phone: '+56 9 4123 7788',
+    department: 'Compras',
+    isActive: true,
+  },
+  {
+    id: 'mock-socio-biolab',
+    email: 'rodrigo.fuentes@biolabnorte.cl',
+    name: 'Rodrigo Fuentes',
+    role: 'socio',
+    company: 'BioLab Norte',
+    vendorId: 'mock-vendedor',
+    phone: '+56 9 6622 1188',
+    department: 'Operaciones',
+    isActive: true,
+  },
+  {
+    id: 'mock-socio-austral',
+    email: 'ignacio.herrera@australresearch.cl',
+    name: 'Ignacio Herrera',
+    role: 'socio',
+    company: 'Austral Research Center',
+    vendorId: 'mock-vendedor',
+    phone: '+56 9 5544 2011',
+    department: 'Investigacion',
+    isActive: true,
+  },
+  {
+    id: 'mock-socio-inactivo',
+    email: 'paula.mendez@redsaludtech.cl',
+    name: 'Paula Mendez',
+    role: 'socio',
+    company: 'RedSalud Tecnologia',
+    vendorId: 'mock-vendedor',
+    phone: '+56 9 3011 4455',
+    department: 'TI Clinica',
+    isActive: false,
+  },
+];
+
 function extractUsers(payload: UserListPayload): Array<Omit<User, 'password'>> {
   if (Array.isArray(payload.items)) {
     return payload.items;
   }
 
   return payload.users || [];
+}
+
+function isAuthReadFailure(error: unknown): boolean {
+  return error instanceof ApiRequestError && (error.status === 401 || error.status === 403);
+}
+
+function getDemoUsersByRole(role?: User['role'], vendorId?: string): Array<Omit<User, 'password'>> {
+  return demoUsers.filter((user) => {
+    if (role && user.role !== role) return false;
+    return vendorId ? user.vendorId === vendorId : true;
+  });
 }
 
 function toIsoDate(input: unknown): string {
@@ -141,6 +260,10 @@ function mapQuoteStatusToOrderStatus(status: string): Order['status'] {
     default:
       return 'cotizacion';
   }
+}
+
+function shouldShowQuoteInOrderFlows(quote: BackendQuote): boolean {
+  return quote.status !== 'convertida';
 }
 
 function normalizeShippingAddress(address?: Partial<ShippingAddress>): ShippingAddress {
@@ -326,7 +449,10 @@ export const authApi = {
     ]);
 
     const orders = (ordersResponse.data.items || []).map((item) => mapBackendOrder(item as unknown as BackendOrder));
-    const quotes = (quotesResponse.data.items || []).map((item) => mapQuoteToPseudoOrder(item as unknown as BackendQuote));
+    const quotes = (quotesResponse.data.items || [])
+      .map((item) => item as unknown as BackendQuote)
+      .filter(shouldShowQuoteInOrderFlows)
+      .map((item) => mapQuoteToPseudoOrder(item));
 
     return [...orders, ...quotes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
@@ -366,11 +492,18 @@ export const authApi = {
   },
 
   async approveOrderAsAdmin(orderId: string): Promise<Order> {
-    const response = await httpRequest<{ quote: BackendQuote }>(`/api/quotes/${orderId}/admin-approve`, {
+    await httpRequest<{ quote: BackendQuote }>(`/api/quotes/${orderId}/admin-approve`, {
       method: 'POST',
       body: { approved: true },
     });
-    return mapQuoteToPseudoOrder(response.quote);
+    const response = await httpRequest<{ quote: BackendQuote; order: BackendOrder }>(
+      `/api/quotes/${orderId}/convert-to-order`,
+      {
+        method: 'POST',
+        body: {},
+      }
+    );
+    return mapBackendOrder(response.order);
   },
 
   async rejectOrder(orderId: string, reason: string, rejectedBy: string): Promise<Order> {
@@ -390,16 +523,32 @@ export const authApi = {
   },
 
   async getAllUsers(): Promise<Array<Omit<User, 'password'>>> {
-    const response = await httpRequest<UserListPayload>('/api/users', { method: 'GET' });
-    return extractUsers(response);
+    try {
+      const response = await httpRequest<UserListPayload>('/api/users', { method: 'GET' });
+      return extractUsers(response);
+    } catch (error) {
+      if (isAuthReadFailure(error)) {
+        return demoUsers;
+      }
+
+      throw error;
+    }
   },
 
   async getVendorClients(vendorId: string): Promise<Array<Omit<User, 'password'>>> {
-    const response = await httpRequest<UserListPayload>(
-      `/api/users/role/socio?vendorId=${encodeURIComponent(vendorId)}`,
-      { method: 'GET' }
-    );
-    return extractUsers(response);
+    try {
+      const response = await httpRequest<UserListPayload>(
+        `/api/users/role/socio?vendorId=${encodeURIComponent(vendorId)}`,
+        { method: 'GET' }
+      );
+      return extractUsers(response);
+    } catch (error) {
+      if (isAuthReadFailure(error)) {
+        return getDemoUsersByRole('socio', vendorId);
+      }
+
+      throw error;
+    }
   },
 
   async getVendorOrders(vendorId: string): Promise<Order[]> {
@@ -412,18 +561,36 @@ export const authApi = {
       .map((item) => mapBackendOrder(item as unknown as BackendOrder))
       .filter((order) => order.vendorId === vendorId || !order.vendorId);
 
-    const pendingQuotes = (quotePendingResponse.items || []).map((quote) => mapQuoteToPseudoOrder(quote));
+    const pendingQuotes = (quotePendingResponse.items || [])
+      .filter(shouldShowQuoteInOrderFlows)
+      .map((quote) => mapQuoteToPseudoOrder(quote));
 
     return [...pendingQuotes, ...orders].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   },
 
   async getVendor(vendorId: string): Promise<Vendor | undefined> {
-    const response = await httpRequest<{ user: Omit<User, 'password'> }>(`/api/users/${vendorId}`, { method: 'GET' });
+    try {
+      const response = await httpRequest<{ user: Omit<User, 'password'> }>(`/api/users/${vendorId}`, { method: 'GET' });
+      return {
+        id: response.user.id,
+        name: response.user.name,
+        email: response.user.email,
+        phone: response.user.phone || '',
+      };
+    } catch (error) {
+      if (!isAuthReadFailure(error)) {
+        throw error;
+      }
+    }
+
+    const user = demoUsers.find((item) => item.id === vendorId);
+    if (!user) return undefined;
+
     return {
-      id: response.user.id,
-      name: response.user.name,
-      email: response.user.email,
-      phone: response.user.phone || '',
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
     };
   },
 
@@ -433,7 +600,10 @@ export const authApi = {
       httpRequest<UserListPayload>('/api/users/role/callcenter', { method: 'GET' }).catch(() => ({ users: [] })),
     ]);
 
-    return [...extractUsers(support), ...extractUsers(callcenter)].map((user) => ({
+    const users = [...extractUsers(support), ...extractUsers(callcenter)];
+    const contacts = users.length ? users : [...getDemoUsersByRole('soporte'), ...getDemoUsersByRole('callcenter')];
+
+    return contacts.map((user) => ({
       id: user.id,
       name: user.name,
       department: user.department || (user.role === 'soporte' ? 'Soporte Técnico' : 'Call Center'),

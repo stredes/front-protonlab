@@ -10,6 +10,8 @@ interface WishlistButtonProps {
   productPrice?: number;
   productImage?: string;
   productSlug?: string;
+  productBrand?: string;
+  productCategory?: string;
   size?: 'sm' | 'md' | 'lg';
   showLabel?: boolean;
   className?: string;
@@ -21,6 +23,8 @@ export function WishlistButton({
   productPrice,
   productImage,
   productSlug,
+  productBrand,
+  productCategory,
   size = 'md',
   showLabel = false,
   className = '',
@@ -39,6 +43,8 @@ export function WishlistButton({
         price: productPrice,
         image: productImage,
         slug: productSlug,
+        brand: productBrand,
+        category: productCategory,
       });
       showToast.success('Producto agregado a favoritos');
     }

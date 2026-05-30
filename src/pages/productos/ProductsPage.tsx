@@ -7,6 +7,7 @@ import { FadeIn } from '../../components/ui/FadeIn';
 import useProducts from '../../hooks/useProducts';
 import { useSearchStore } from '../../features/search/searchStore';
 import { Product } from '../../features/catalog/types';
+import { preconnectImageOrigins } from '../../features/catalog/imagePerformance';
 import QuoteRequestModal from '../../components/products/QuoteRequestModal';
 
 function ProductsPage() {
@@ -97,6 +98,14 @@ function ProductsPage() {
     [filteredProductsByPrice, visibleCount]
   );
 
+  useEffect(() => {
+    preconnectImageOrigins(
+      visibleProducts
+        .slice(0, 12)
+        .flatMap((product) => [product.imageUrl, product.image])
+    );
+  }, [visibleProducts]);
+
   const handleGridScroll = useCallback(
     (event: UIEvent<HTMLDivElement>) => {
       const target = event.currentTarget;
@@ -156,12 +165,13 @@ function ProductsPage() {
         <FadeIn direction="up" delay={0.2}>
           <div className="products-grid-scroll" onScroll={handleGridScroll}>
             <div className="grid three">
-              {visibleProducts.map((product) => (
+              {visibleProducts.map((product, index) => (
                 <ProductCard
                   key={product.id}
                   product={product}
                   categoryName={categoryNameById.get(product.categoryId) ?? product.familia ?? 'Sin categoría'}
                   onQuote={handleQuote}
+                  priorityImage={index < 4}
                 />
               ))}
               {filteredProductsByPrice.length === 0 && (

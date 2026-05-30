@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Order } from '../../features/auth/types';
 import { authApi } from '../../features/auth/authApi';
+import { getOrderFlowLabel, isOperationalOrderStatus } from '../../features/orders/orderFlow';
 
 interface OrderManagementProps {
   orders: Order[];
@@ -8,7 +9,6 @@ interface OrderManagementProps {
 }
 
 const statusOptions: Array<{ value: Order['status']; label: string; color: string }> = [
-  { value: 'pendiente', label: 'Pendiente', color: '#FFA500' },
   { value: 'confirmado', label: 'Confirmado', color: '#00BCD4' },
   { value: 'procesando', label: 'Procesando', color: '#2196F3' },
   { value: 'enviado', label: 'Enviado', color: '#9C27B0' },
@@ -18,6 +18,7 @@ const statusOptions: Array<{ value: Order['status']; label: string; color: strin
 
 export function OrderManagement({ orders, onOrderUpdate }: OrderManagementProps) {
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
+  const operationalOrders = orders.filter((order) => isOperationalOrderStatus(order.status));
 
   const handleStatusChange = async (orderId: string, newStatus: Order['status']) => {
     setUpdatingOrder(orderId);
@@ -56,7 +57,7 @@ export function OrderManagement({ orders, onOrderUpdate }: OrderManagementProps)
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => {
+            {operationalOrders.map(order => {
               const currentStatus = statusOptions.find(s => s.value === order.status);
               return (
                 <tr key={order.id}>
@@ -77,7 +78,7 @@ export function OrderManagement({ orders, onOrderUpdate }: OrderManagementProps)
                       className="status-badge" 
                       style={{ backgroundColor: currentStatus?.color }}
                     >
-                      {currentStatus?.label}
+                      {currentStatus?.label || getOrderFlowLabel(order.status)}
                     </span>
                   </td>
                   <td>
@@ -100,6 +101,15 @@ export function OrderManagement({ orders, onOrderUpdate }: OrderManagementProps)
                 </tr>
               );
             })}
+            {operationalOrders.length === 0 && (
+              <tr>
+                <td colSpan={7}>
+                  <div className="empty-state">
+                    <p>No hay órdenes de compra operativas para gestionar.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

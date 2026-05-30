@@ -1,4 +1,5 @@
 import { Order } from '../../features/auth/types';
+import { isOperationalOrderStatus } from '../../features/orders/orderFlow';
 
 interface VendorOrderListProps {
   orders: Order[];
@@ -20,6 +21,8 @@ const statusConfig = {
 };
 
 export function VendorOrderList({ orders }: VendorOrderListProps) {
+  const operationalOrders = orders.filter((order) => isOperationalOrderStatus(order.status));
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-CL', {
       style: 'currency',
@@ -44,7 +47,7 @@ export function VendorOrderList({ orders }: VendorOrderListProps) {
             </tr>
           </thead>
           <tbody>
-            {orders.map(order => {
+            {operationalOrders.map(order => {
               const status = statusConfig[order.status] || { label: order.status, color: '#6B7280', icon: 'ℹ️' };
               return (
                 <tr key={order.id}>
@@ -78,6 +81,15 @@ export function VendorOrderList({ orders }: VendorOrderListProps) {
                 </tr>
               );
             })}
+            {operationalOrders.length === 0 && (
+              <tr>
+                <td colSpan={6}>
+                  <div className="empty-state">
+                    <p>No hay pedidos convertidos para mostrar.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

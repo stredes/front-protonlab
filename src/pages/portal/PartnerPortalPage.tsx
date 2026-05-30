@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../features/auth/authStore';
 import { authApi } from '../../features/auth/authApi';
 import { Order, Vendor, SupportContact } from '../../features/auth/types';
+import { isActiveQuoteStatus, isOperationalOrderStatus, isTerminalQuoteStatus } from '../../features/orders/orderFlow';
 import { OrderCard } from '../../components/portal/OrderCard';
 import { ContactCard } from '../../components/portal/ContactCard';
 import Loader from '../../components/ui/Loader';
@@ -43,8 +44,9 @@ export function PartnerPortalPage() {
     loadData();
   }, [loadData]);
 
-  const activeOrders = orders.filter(o => o.status !== 'entregado' && o.status !== 'cancelado');
-  const completedOrders = orders.filter(o => o.status === 'entregado' || o.status === 'cancelado');
+  const quoteRequests = orders.filter(o => isActiveQuoteStatus(o.status) || isTerminalQuoteStatus(o.status));
+  const activeOrders = orders.filter(o => isOperationalOrderStatus(o.status) && o.status !== 'entregado' && o.status !== 'cancelado');
+  const completedOrders = orders.filter(o => isOperationalOrderStatus(o.status) && (o.status === 'entregado' || o.status === 'cancelado'));
 
   if (!user) return null;
 
@@ -68,7 +70,14 @@ export function PartnerPortalPage() {
           <div className="stat-card__icon">📦</div>
           <div className="stat-card__content">
             <h3>{activeOrders.length}</h3>
-            <p>Pedidos Activos</p>
+            <p>Órdenes Activas</p>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-card__icon">📋</div>
+          <div className="stat-card__content">
+            <h3>{quoteRequests.length}</h3>
+            <p>Cotizaciones</p>
           </div>
         </div>
         <div className="stat-card">
@@ -113,9 +122,20 @@ export function PartnerPortalPage() {
             <div className="portal-orders">
               {activeOrders.length > 0 && (
                 <section className="orders-section">
-                  <h2>Pedidos Activos</h2>
+                  <h2>Órdenes de Compra Activas</h2>
                   <div className="orders-grid">
                     {activeOrders.map(order => (
+                      <OrderCard key={order.id} order={order} onOrderUpdated={loadData} />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {quoteRequests.length > 0 && (
+                <section className="orders-section">
+                  <h2>Cotizaciones</h2>
+                  <div className="orders-grid">
+                    {quoteRequests.map(order => (
                       <OrderCard key={order.id} order={order} onOrderUpdated={loadData} />
                     ))}
                   </div>
@@ -135,7 +155,7 @@ export function PartnerPortalPage() {
 
               {orders.length === 0 && (
                 <div className="empty-state">
-                  <p>No tienes pedidos registrados</p>
+                  <p>No tienes cotizaciones ni órdenes registradas</p>
                 </div>
               )}
             </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../features/auth/authStore';
 import { Order } from '../../features/auth/types';
 import { authApi } from '../../features/auth/authApi';
+import { isWarehouseOrderStatus } from '../../features/orders/orderFlow';
 import Loader from '../../components/ui/Loader';
 import { OrderPreparation, ShippingManagement, WarehouseStock } from '../../components/warehouse';
 import { Navigate } from 'react-router-dom';
@@ -25,9 +26,7 @@ export function WarehouseDashboardPage() {
     try {
       const data = await authApi.getOrders();
       // Filtrar solo pedidos confirmados en adelante (bodega no debe ver cotizaciones ni pendientes de aprobación)
-      const warehouseOrders = data.filter((o: Order) => 
-        ['confirmado', 'procesando', 'enviado', 'entregado'].includes(o.status)
-      );
+      const warehouseOrders = data.filter((o: Order) => isWarehouseOrderStatus(o.status));
       setOrders(warehouseOrders);
       
       // Calcular estadísticas solo de pedidos que le corresponden a bodega
