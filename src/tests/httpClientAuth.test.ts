@@ -79,10 +79,10 @@ describe('httpClient auth header', () => {
     );
   });
 
-  it('does not send the development mock token to protected backend routes', async () => {
+  it('sends the development mock token while mock login is active in local dev', async () => {
     localStorage.setItem(
       'protonlab_auth',
-      JSON.stringify({ user: { id: 'mock-admin' }, token: 'mock-token-dev' })
+      JSON.stringify({ user: { id: 'mock-admin' }, token: 'mock-token-dev:admin:admin%40protonlab.cl' })
     );
 
     const { httpRequest } = await import('../lib/httpClient');
@@ -91,8 +91,8 @@ describe('httpClient auth header', () => {
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        headers: expect.not.objectContaining({
-          Authorization: expect.any(String),
+        headers: expect.objectContaining({
+          Authorization: 'Bearer mock-token-dev:admin:admin%40protonlab.cl',
         }),
       })
     );

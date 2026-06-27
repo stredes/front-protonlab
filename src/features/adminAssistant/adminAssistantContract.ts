@@ -29,6 +29,13 @@ export interface AdminAssistantChatResponse {
   };
 }
 
+export interface AdminAssistantMessage {
+  id: string;
+  role: 'assistant' | 'user';
+  content: string;
+  timestamp: string;
+}
+
 export const ADMIN_ASSISTANT_ENDPOINT = '/api/ai/sql-assistant';
 
 const ADMIN_ASSISTANT_SUGGESTIONS: AdminAssistantSuggestion[] = [

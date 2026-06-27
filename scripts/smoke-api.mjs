@@ -56,7 +56,6 @@ function loadEnvFile(filePath) {
 
 const cwd = process.cwd();
 loadEnvFile(path.join(cwd, '.env'));
-loadEnvFile(path.join(cwd, '.env.local'));
 
 const baseUrl = normalizeBaseUrl(
   process.env.API_BASE_URL ||

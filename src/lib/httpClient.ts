@@ -1,4 +1,10 @@
-import { API_BASE_URL as RAW_API_BASE_URL, API_TIMEOUT_MS, API_VERSION, ENABLE_API_DIAGNOSTICS } from '../config/env';
+import {
+  API_BASE_URL as RAW_API_BASE_URL,
+  API_TIMEOUT_MS,
+  API_VERSION,
+  ENABLE_API_DIAGNOSTICS,
+  ENABLE_LOGIN_MOCK,
+} from '../config/env';
 import { logger } from './logger';
 import { logApiEvent } from './eventLogger';
 import { auth } from './firebase';
@@ -79,9 +85,16 @@ function getStoredAuthToken(): string | null {
     }
 
     const parsed = JSON.parse(stored) as { token?: unknown };
-    return typeof parsed.token === 'string' && parsed.token !== MOCK_AUTH_TOKEN
-      ? parsed.token
-      : null;
+    if (typeof parsed.token !== 'string') {
+      return null;
+    }
+
+    const isMockToken = parsed.token === MOCK_AUTH_TOKEN || parsed.token.startsWith(`${MOCK_AUTH_TOKEN}:`);
+    if (isMockToken && !(ENABLE_LOGIN_MOCK && import.meta.env.DEV)) {
+      return null;
+    }
+
+    return parsed.token;
   } catch {
     return null;
   }

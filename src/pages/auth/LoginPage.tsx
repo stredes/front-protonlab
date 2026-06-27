@@ -74,6 +74,10 @@ function navigateByRole(role: User['role'], navigate: ReturnType<typeof useNavig
   }
 }
 
+function createMockToken(user: User): string {
+  return `mock-token-dev:${user.role}:${encodeURIComponent(user.email)}`;
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -125,7 +129,7 @@ export function LoginPage() {
 
         if (foundMock) {
           const { password: _password, ...user } = foundMock;
-          login(user, 'mock-token-dev');
+          login(user, createMockToken(user));
           navigateByRole(user.role, navigate);
           return;
         }
