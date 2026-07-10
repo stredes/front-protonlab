@@ -137,6 +137,11 @@ export function UserManagement({ users, currentUser, onUsersChange, createUserTr
       return;
     }
 
+    if (formData.phone && /[^0-9+\-() ]/.test(formData.phone)) {
+      toast.error('El teléfono solo puede contener números, espacios, guiones, paréntesis y el signo +');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       if (editingUser) {
@@ -547,8 +552,14 @@ export function UserManagement({ users, currentUser, onUsersChange, createUserTr
                   id="phone"
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const sanitized = raw.replace(/[^0-9+\-() ]/g, '');
+                    setFormData({ ...formData, phone: sanitized });
+                  }}
                   placeholder="+56 9 1234 5678"
+                  pattern="[0-9+\-() ]*"
+                  title="Solo se permiten números, espacios, guiones, paréntesis y el signo +"
                 />
               </div>
 
